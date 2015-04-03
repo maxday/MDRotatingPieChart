@@ -11,9 +11,7 @@ import QuartzCore
 
 class Turn: UIControl {
     
-    var array:Array<UIBezierPath> = Array<UIBezierPath>()
-    var arrayShape:Array<CAShapeLayer> = Array<CAShapeLayer>()
-    var arrayAngle:Array<CGFloat> = Array<CGFloat>()
+    var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
     var correctCenter:CGPoint = CGPointMake(0, 0)
     var oldPosition:CGPoint = CGPointMake(0, 0)
@@ -66,10 +64,10 @@ class Turn: UIControl {
         
         for currentValue in data  {
             currentAngle = currentValue * 2 * CGFloat(M_PI) / total
-            let shape = createShape(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle))
+            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle))
             currentStartAngle -= currentAngle
             currentEndAngle = currentStartAngle - currentAngle
-            self.layer.insertSublayer(shape, atIndex:0)
+            self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
         }
         
         
@@ -90,8 +88,8 @@ class Turn: UIControl {
         var cpt = 0
         
         let currentPoint = touch.locationInView(self)
-        for currentPath in array {
-            if currentPath.containsPoint(currentPoint) {
+        for currentPath in slicesArray {
+            if currentPath.bezierPath.containsPoint(currentPoint) {
                 
                 
                 openedSlice?.transform = oldTransform!
@@ -100,12 +98,12 @@ class Turn: UIControl {
                 
                 
                 
-                if(openedSlice == arrayShape[cpt]) {
+                if(openedSlice == slicesArray[cpt].shapeLayer) {
                     openedSlice = nil
                     return
                 }
                 
-                openedSlice = arrayShape[cpt]
+                openedSlice = slicesArray[cpt].shapeLayer
                 
                 oldTransform = openedSlice?.transform
                 
@@ -113,9 +111,9 @@ class Turn: UIControl {
                 var i=0
                 var angleSum:CGFloat = 0
                 for(i=0; i<cpt; ++i) {
-                    angleSum += arrayAngle[i]
+                    angleSum += slicesArray[i].angle
                 }
-                angleSum += arrayAngle[cpt]/2.0
+                angleSum += slicesArray[cpt].angle/2.0
                 
                 
                 
@@ -189,7 +187,7 @@ class Turn: UIControl {
     }
     
     
-    func createShape(start:CGFloat, end:CGFloat) -> CAShapeLayer {
+    func createSlice(start:CGFloat, end:CGFloat) -> Slice {
         
         var mask = CAShapeLayer()
         
@@ -209,15 +207,14 @@ class Turn: UIControl {
         
         
         
+        var slice = Slice()
+        slice.shapeLayer = mask
+        slice.bezierPath = path
+        slice.angle = end-start
+
+        slicesArray.append(slice)
         
-        
-        arrayShape.append(mask)
-        array.append(path)
-        
-        arrayAngle.append(end-start);
-        
-        
-        return mask;
+        return slice;
         
     }
     
