@@ -20,13 +20,13 @@ protocol TurnDataSource {
 
 }
 
-protocol TurnDelegate {
+@objc protocol TurnDelegate {
     
-    func willOpenSliceAtIndex(index:Int)
-    func willCloseSliceAtIndex(index:Int)
+    optional func willOpenSliceAtIndex(index:Int)
+    optional func willCloseSliceAtIndex(index:Int)
     
-    func didOpenSliceAtIndex(index:Int)
-    func didCloseSliceAtIndex(index:Int)
+    optional func didOpenSliceAtIndex(index:Int)
+    optional func didCloseSliceAtIndex(index:Int)
     
 }
 
@@ -129,9 +129,9 @@ class Turn: UIControl {
                 
                 
                 if((openedSlice?.transform) != nil)  {
-                    delegate?.willCloseSliceAtIndex(oldSelected)
+                    delegate?.willCloseSliceAtIndex!(oldSelected)
                     openedSlice?.transform = oldTransform!
-                    delegate?.didCloseSliceAtIndex(oldSelected)
+                    delegate?.didCloseSliceAtIndex!(oldSelected)
                 }
                 
                 
@@ -166,9 +166,9 @@ class Turn: UIControl {
                 let translate = CATransform3DMakeTranslation(transX, transY, 0);
                 
                 
-                delegate?.willOpenSliceAtIndex(cpt)
+                delegate?.willOpenSliceAtIndex!(cpt)
                 openedSlice?.transform = translate
-                delegate?.didOpenSliceAtIndex(cpt)
+                delegate?.didOpenSliceAtIndex!(cpt)
                 
                 
                 
