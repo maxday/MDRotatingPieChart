@@ -15,6 +15,8 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     var slicesData:Array<Data> = Array<Data>()
      
     let turn = Turn(frame: CGRectMake(0, 0, 600, 600))
+    
+    var i=0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,9 +31,34 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         turn.build()
 
         view.addSubview(turn)
+        
+    
+        let addBtn = UIButton(frame: CGRectMake(650, 100, 400, 200))
+        addBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
+        addBtn.setTitle("Add slice", forState: UIControlState.Normal)
+        addBtn.addTarget(self, action: "addSlice", forControlEvents: UIControlEvents.TouchUpInside)
+        view.addSubview(addBtn)
+        
+        let removeBtn = UIButton(frame: CGRectMake(650, 550, 400, 200))
+        removeBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
+        removeBtn.setTitle("Remove slice", forState: UIControlState.Normal)
+        removeBtn.addTarget(self, action: "removeSlice", forControlEvents: UIControlEvents.TouchUpInside)
+        view.addSubview(removeBtn)
+        
+        
 
     }
 
+    func addSlice()  {
+        slicesData.append(Data(myValue:50, myColor:slicesData[++i % slicesData.count-1].color))
+        turn.build()
+    }
+    
+    func removeSlice()  {
+        slicesData.removeLast()
+        turn.build()
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

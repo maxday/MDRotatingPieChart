@@ -39,10 +39,6 @@ class Turn: UIControl {
     var datasource:TurnDataSource!
     var delegate:TurnDelegate!
     
-    
-    var data:Array<Data> = Array<Data>()
-    
-    
     let smallRadius:CGFloat = 150
     let bigRadius:CGFloat = 250
     let expand:CGFloat = 50
@@ -74,6 +70,13 @@ class Turn: UIControl {
         if(datasource == nil) {
             return
         }
+        
+        var currentShape:CAShapeLayer
+        for currentShape in slicesArray {
+            currentShape.shapeLayer.removeFromSuperlayer()
+        }
+        slicesArray.removeAll(keepCapacity: false)
+        
         
         var total:CGFloat = 0
         var currentAngle:CGFloat = 0

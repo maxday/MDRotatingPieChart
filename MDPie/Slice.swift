@@ -31,6 +31,11 @@ class Data {
         color = UIColorFromRGB(myColor)
     }
     
+    init(myValue:CGFloat, myColor:UIColor) {
+        value = myValue
+        color = myColor
+    }
+    
     func UIColorFromRGB(colorCode: String, alpha: Float = 1.0) -> UIColor {
         var scanner = NSScanner(string:colorCode)
         var color:UInt32 = 0;
