@@ -23,18 +23,19 @@ struct DualPath {
 
 
 struct Slice {
-    var bezierPath:UIBezierPath
-    var animationBezierPath:UIBezierPath
+    var paths:DualPath
     var shapeLayer:CAShapeLayer
     var angle:CGFloat
     var label:String
+    var value:CGFloat
+    var labelObj:UILabel?
     
-    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String) {
-        self.bezierPath = myBezierPath
+    init(myPaths:DualPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat) {
+        self.paths = myPaths
         self.shapeLayer = myShapeLayer
         self.angle = myAngle
         self.label = myLabel
-        self.animationBezierPath = myAnimationBezierPath
+        self.value = myValue
     }
 }
 

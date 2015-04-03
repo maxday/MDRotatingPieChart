@@ -22,7 +22,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         super.viewDidLoad()
         
         
-        slicesData = [Data(myValue: 50,myColor: "1ABC9C", myLabel:"Apple"), Data(myValue: 70,myColor: "9B59B6", myLabel:"Banana"), Data(myValue: 400,myColor: "F1C40F", myLabel:"Coconut"), Data(myValue: 20, myColor: "2ECC71", myLabel:"Strawberry"), Data(myValue: 40,myColor: "3498DB", myLabel:"Mango"), Data(myValue: 150,myColor: "E74C3C", myLabel:"Raspberry")]
+        slicesData = [Data(myValue: 50,myColor: "1ABC9C", myLabel:"Apple"), Data(myValue: 70,myColor: "9B59B6", myLabel:"Banana"), Data(myValue: 50,myColor: "F1C40F", myLabel:"Coconut"), Data(myValue: 20, myColor: "2ECC71", myLabel:"Strawberry"), Data(myValue: 40,myColor: "3498DB", myLabel:"Mango"), Data(myValue: 150,myColor: "E74C3C", myLabel:"Raspberry")]
         
         
         turn.delegate = self

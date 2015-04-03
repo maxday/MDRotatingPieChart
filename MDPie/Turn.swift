@@ -40,12 +40,15 @@ class Turn: UIControl {
     var datasource:TurnDataSource!
     var delegate:TurnDelegate!
     
-    let smallRadius:CGFloat = 150
-    let bigRadius:CGFloat = 250
+    let smallRadius:CGFloat = 120
+    let bigRadius:CGFloat = 200
     let expand:CGFloat = 50
     
     let centerX:CGFloat = 300
     let centerY:CGFloat = 300
+    
+    let percentBoxSizeHeight:CGFloat = 40
+    let percentBoxSizeWidth:CGFloat = 55
     
     var hasBeenDraged:Bool = false
     
@@ -54,6 +57,7 @@ class Turn: UIControl {
     var oldTransform:CATransform3D?
     
     var oldSelected:Int = 0
+   
    
     
     override init(frame: CGRect) {
@@ -69,6 +73,7 @@ class Turn: UIControl {
     func build() {
         
         if(datasource == nil) {
+            println("Did you forget to set your datasource ?")
             return
         }
         
@@ -92,14 +97,52 @@ class Turn: UIControl {
             total = total + datasource.valueForSliceAtIndex(index)
         }
 
-       
+        
+        var angleSum:CGFloat = 0
         
         for (index = 0; index < datasource?.numberOfSlices(); ++index) {
             
             currentAngle = datasource.valueForSliceAtIndex(index) * 2 * CGFloat(M_PI) / total
             currentColor = datasource.colorForSliceAtIndex(index)
             currentLabel = datasource.labelForSliceAtIndex(index)
-            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel)
+            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:100 * datasource.valueForSliceAtIndex(index)/total)
+            
+            
+            angleSum += slice.angle/2
+            
+            //label creation
+            
+            
+            let label = UILabel(frame: CGRectMake(0, 0, percentBoxSizeWidth, percentBoxSizeHeight))
+            label.center = CGPointMake(300+(smallRadius + (bigRadius-smallRadius)/2)*cos(angleSum), 300+(smallRadius + (bigRadius-smallRadius)/2)*sin(angleSum))
+            
+            
+            label.textAlignment = NSTextAlignment.Center
+            
+            var nf:NSNumberFormatter = NSNumberFormatter()
+            nf.groupingSize = 3
+            nf.maximumSignificantDigits = 3
+            nf.minimumSignificantDigits = 3
+            
+            label.text = nf.stringFromNumber(slicesArray[index].value)?.stringByAppendingString("%")
+            
+            label.textColor = UIColor.blackColor()
+            
+            slicesArray[index].labelObj = label
+            slicesArray[index].shapeLayer.addSublayer(label.layer)
+
+            
+            //end label creation
+            
+            
+            angleSum += slice.angle/2
+            
+            
+            
+            
+            
+            
+            
             
             self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
             
@@ -145,7 +188,7 @@ class Turn: UIControl {
         
         let currentPoint = touch.locationInView(self)
         for currentPath in slicesArray {
-            if currentPath.bezierPath.containsPoint(currentPoint) {
+            if currentPath.paths.bezierPath.containsPoint(currentPoint) {
                 
                 
                 if((openedSlice?.transform) != nil)  {
@@ -182,19 +225,15 @@ class Turn: UIControl {
                 let transX:CGFloat = expand*cos(angleSum)
                 let transY:CGFloat = expand*sin(angleSum)
                 
-                
                 let translate = CATransform3DMakeTranslation(transX, transY, 0);
                 
                 
                 delegate?.willOpenSliceAtIndex!(cpt)
                 openedSlice?.transform = translate
+
                 delegate?.didOpenSliceAtIndex!(cpt)
                 
-                
-                
-                
-                
-                
+
                 
             }
             cpt++
@@ -239,8 +278,18 @@ class Turn: UIControl {
         let angleDifference = delta - ang
         
        
+        let savedTransform = slicesArray[0].labelObj?.transform
+    
         
-        self.transform = CGAffineTransformRotate(self.transform, -angleDifference);
+        self.transform = CGAffineTransformRotate(self.transform, -angleDifference)
+        
+        for slice in slicesArray  {
+            if(slice.labelObj != nil)  {
+                slice.labelObj?.transform = CGAffineTransformRotate(savedTransform!, angleDifference)
+            }
+            
+        }
+        
         
         return true;
     }
@@ -255,7 +304,7 @@ class Turn: UIControl {
         return sqroot < smallRadius || sqroot > (bigRadius + expand + (bigRadius-smallRadius)/2)
     }
     
-    func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String) -> Slice {
+    func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String, value:CGFloat) -> Slice {
         
         var mask = CAShapeLayer()
         
@@ -266,8 +315,14 @@ class Turn: UIControl {
         mask.strokeColor = color.CGColor
         mask.fillColor = color.CGColor
         
-        var slice = Slice(myBezierPath: path.bezierPath, myAnimationBezierPath: path.animationBezierPath, myShapeLayer: mask, myAngle: end-start, myLabel:label)
+        var slice = Slice(myPaths: path, myShapeLayer: mask, myAngle: end-start, myLabel:label, myValue:value)
         slicesArray.append(slice)
+        
+        
+        
+        
+        
+        
         
         return slice;
         
@@ -278,6 +333,9 @@ class Turn: UIControl {
         
         var path = UIBezierPath()
         var animationPath = UIBezierPath()
+        var pathToDetectMiddlePoint = UIBezierPath()
+        
+       
         
         path.moveToPoint(CGPointMake(centerX + smallRadius *  cos(start), centerY + smallRadius * sin(start)))
         
@@ -287,11 +345,25 @@ class Turn: UIControl {
 
         path.addArcWithCenter(CGPointMake(centerX, centerY), radius: smallRadius, startAngle: start, endAngle: end, clockwise: false)
         
+        
+        pathToDetectMiddlePoint.moveToPoint(animationPath.currentPoint)
+        
+        
+        
         animationPath.addArcWithCenter(CGPointMake(centerX, centerY), radius: (smallRadius + (bigRadius-smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
+        
+        pathToDetectMiddlePoint.addArcWithCenter(CGPointMake(centerX, centerY), radius: (smallRadius + (bigRadius-smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
+        
+        
+        
         
         animationPath.addArcWithCenter(CGPointMake(centerX, centerY), radius: (smallRadius + (bigRadius-smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
         
+        pathToDetectMiddlePoint.addArcWithCenter(CGPointMake(centerX, centerY), radius: (smallRadius + (bigRadius-smallRadius)/2), startAngle: end, endAngle: start/2, clockwise: true)
         
+        
+        
+       
         
         
         var path2 = UIBezierPath()
@@ -306,13 +378,7 @@ class Turn: UIControl {
         
         path.addLineToPoint(CGPointMake(centerX + smallRadius *  cos(start), centerY + smallRadius * sin(start)))
 
-        
-        
-        
-        
- 
         return DualPath(myBezierPath: path, myAnimationBezierPath: animationPath);
-        
         
     }
 
