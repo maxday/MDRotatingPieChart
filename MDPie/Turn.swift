@@ -9,12 +9,35 @@
 import UIKit
 import QuartzCore
 
+
+protocol TurnDataSource {
+    
+    func colorForSliceAtIndex(index:Int) -> UIColor
+    func valueForSliceAtIndex(index:Int) -> CGFloat
+    
+    func numberOfSlices() -> Int
+
+}
+
+protocol TurnDelegate {
+    
+    func willOpenSliceAtIndex(index:Int)
+    func willCloseSliceAtIndex(index:Int)
+    
+    func didOpenSliceAtIndex(index:Int)
+    func didCloseSliceAtIndex(index:Int)
+    
+}
+
 class Turn: UIControl {
     
     var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
     var correctCenter:CGPoint = CGPointMake(0, 0)
     var oldPosition:CGPoint = CGPointMake(0, 0)
+    
+    var datasource:TurnDataSource!
+    var delegate:TurnDelegate!
     
     
     var data:Array<Data> = Array<Data>()
@@ -32,14 +55,13 @@ class Turn: UIControl {
     var openedSlice:CAShapeLayer?
     
     var oldTransform:CATransform3D?
+    
+    var oldSelected:Int = 0
    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         correctCenter = CGPointMake(self.frame.size.width/2, self.frame.size.height/2)
-        
-  
-        
     }
     
     required init(coder: NSCoder) {
@@ -49,22 +71,34 @@ class Turn: UIControl {
   
     func build() {
         
+        if(datasource == nil) {
+            return
+        }
+        
         var total:CGFloat = 0
         var currentAngle:CGFloat = 0
         var currentEndAngle:CGFloat = 0
         var currentStartAngle:CGFloat = 0
+        var currentColor:UIColor = UIColor.grayColor()
         
-        for currentValue in data  {
-            total+=currentValue.value
+
+        var index = 0
+        for (index=0; index < datasource.numberOfSlices(); ++index) {
+            total = total + datasource.valueForSliceAtIndex(index)
         }
+
         
-        for currentValue in data  {
-            currentAngle = currentValue.value * 2 * CGFloat(M_PI) / total
-            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentValue.color)
+        for (index = 0; index < datasource?.numberOfSlices(); ++index) {
+            
+            currentAngle = datasource.valueForSliceAtIndex(index) * 2 * CGFloat(M_PI) / total
+            currentColor = datasource.colorForSliceAtIndex(index)
+            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor)
             currentStartAngle -= currentAngle
             currentEndAngle = currentStartAngle - currentAngle
             self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
         }
+        
+       
         
         
         
@@ -88,7 +122,12 @@ class Turn: UIControl {
             if currentPath.bezierPath.containsPoint(currentPoint) {
                 
                 
-                openedSlice?.transform = oldTransform!
+                if((openedSlice?.transform) != nil)  {
+                    delegate?.willCloseSliceAtIndex(oldSelected)
+                    openedSlice?.transform = oldTransform!
+                    delegate?.didCloseSliceAtIndex(oldSelected)
+                }
+                
                 
                 
                 
@@ -100,6 +139,7 @@ class Turn: UIControl {
                 }
                 
                 openedSlice = slicesArray[cpt].shapeLayer
+                oldSelected = cpt
                 
                 oldTransform = openedSlice?.transform
                 
@@ -118,7 +158,14 @@ class Turn: UIControl {
                 
                 
                 let translate = CATransform3DMakeTranslation(transX, transY, 0);
+                
+                
+                delegate?.willOpenSliceAtIndex(cpt)
                 openedSlice?.transform = translate
+                delegate?.didOpenSliceAtIndex(cpt)
+                
+                
+                
                 
                 
                 
