@@ -14,6 +14,7 @@ protocol TurnDataSource {
     
     func colorForSliceAtIndex(index:Int) -> UIColor
     func valueForSliceAtIndex(index:Int) -> CGFloat
+    func labelForSliceAtIndex(index:Int) -> String
     
     func numberOfSlices() -> Int
 
@@ -83,6 +84,7 @@ class Turn: UIControl {
         var currentEndAngle:CGFloat = 0
         var currentStartAngle:CGFloat = 0
         var currentColor:UIColor = UIColor.grayColor()
+        var currentLabel:String
         
 
         var index = 0
@@ -95,7 +97,8 @@ class Turn: UIControl {
             
             currentAngle = datasource.valueForSliceAtIndex(index) * 2 * CGFloat(M_PI) / total
             currentColor = datasource.colorForSliceAtIndex(index)
-            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor)
+            currentLabel = datasource.labelForSliceAtIndex(index)
+            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel)
             currentStartAngle -= currentAngle
             currentEndAngle = currentStartAngle - currentAngle
             self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
@@ -233,7 +236,7 @@ class Turn: UIControl {
     }
     
     
-    func createSlice(start:CGFloat, end:CGFloat, color:UIColor) -> Slice {
+    func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String) -> Slice {
         
         var mask = CAShapeLayer()
         
@@ -249,7 +252,7 @@ class Turn: UIControl {
         
         
         
-        var slice = Slice(myBezierPath: path, myShapeLayer: mask, myAngle: end-start)
+        var slice = Slice(myBezierPath: path, myShapeLayer: mask, myAngle: end-start, myLabel:label)
         slicesArray.append(slice)
         
         return slice;

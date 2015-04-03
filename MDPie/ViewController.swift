@@ -22,7 +22,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         super.viewDidLoad()
         
         
-        slicesData = [Data(myValue: 50,myColor: "1ABC9C"), Data(myValue: 70,myColor: "9B59B6"), Data(myValue: 400,myColor: "F1C40F"), Data(myValue: 20,myColor: "2ECC71"), Data(myValue: 40,myColor: "3498DB"), Data(myValue: 150,myColor: "E74C3C")]
+        slicesData = [Data(myValue: 50,myColor: "1ABC9C", myLabel:"Apple"), Data(myValue: 70,myColor: "9B59B6", myLabel:"Banana"), Data(myValue: 400,myColor: "F1C40F", myLabel:"Coconut"), Data(myValue: 20, myColor: "2ECC71", myLabel:"Strawberry"), Data(myValue: 40,myColor: "3498DB", myLabel:"Mango"), Data(myValue: 150,myColor: "E74C3C", myLabel:"Raspberry")]
         
         
         turn.delegate = self
@@ -50,7 +50,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     }
 
     func addSlice()  {
-        slicesData.append(Data(myValue:50, myColor:slicesData[++i % slicesData.count-1].color))
+        slicesData.append(Data(myValue:50, myColor:slicesData[++i % slicesData.count-1].color, myLabel:"A new fruit"))
         turn.build()
     }
     
@@ -96,6 +96,10 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     
     func valueForSliceAtIndex(index:Int) -> CGFloat {
         return slicesData[index].value
+    }
+    
+    func labelForSliceAtIndex(index:Int) -> String {
+        return slicesData[index].label
     }
     
     func numberOfSlices() -> Int {
