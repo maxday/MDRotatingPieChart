@@ -17,7 +17,7 @@ class Turn: UIControl {
     var oldPosition:CGPoint = CGPointMake(0, 0)
     
     
-    var data:Array<CGFloat> = Array<CGFloat>()
+    var data:Array<Data> = Array<Data>()
     
     
     let smallRadius:CGFloat = 150
@@ -26,10 +26,6 @@ class Turn: UIControl {
     
     let centerX:CGFloat = 300
     let centerY:CGFloat = 300
-    
-    var boolColor = true
-
-    
     
     var hasBeenDraged:Bool = false
     
@@ -59,12 +55,12 @@ class Turn: UIControl {
         var currentStartAngle:CGFloat = 0
         
         for currentValue in data  {
-            total+=currentValue
+            total+=currentValue.value
         }
         
         for currentValue in data  {
-            currentAngle = currentValue * 2 * CGFloat(M_PI) / total
-            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle))
+            currentAngle = currentValue.value * 2 * CGFloat(M_PI) / total
+            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentValue.color)
             currentStartAngle -= currentAngle
             currentEndAngle = currentStartAngle - currentAngle
             self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
@@ -187,7 +183,7 @@ class Turn: UIControl {
     }
     
     
-    func createSlice(start:CGFloat, end:CGFloat) -> Slice {
+    func createSlice(start:CGFloat, end:CGFloat, color:UIColor) -> Slice {
         
         var mask = CAShapeLayer()
         
@@ -195,23 +191,15 @@ class Turn: UIControl {
         let path = drawSlice(start, end: end)
         mask.path = path.CGPath
         mask.lineWidth = 1.0
-        mask.strokeColor = UIColor.redColor().CGColor
+        mask.strokeColor = color.CGColor
         
-        boolColor = !boolColor
-        if(boolColor) {
-            mask.fillColor = UIColor.greenColor().CGColor
-        }
-        else {
-            mask.fillColor = UIColor.blueColor().CGColor
-        }
+       
+        mask.fillColor = color.CGColor
+       
         
         
         
-        var slice = Slice()
-        slice.shapeLayer = mask
-        slice.bezierPath = path
-        slice.angle = end-start
-
+        var slice = Slice(myBezierPath: path, myShapeLayer: mask, myAngle: end-start)
         slicesArray.append(slice)
         
         return slice;

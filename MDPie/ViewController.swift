@@ -23,26 +23,13 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         
-       /* let shape = createShape(0, end: CGFloat(-M_PI/3))
-        let shape2 = createShape(CGFloat(-M_PI/3), end: CGFloat(-M_PI))
-        let shape3 = createShape(CGFloat(-M_PI), end: CGFloat(-5*M_PI/3))
-        let shape4 = createShape(CGFloat(-5*M_PI/3), end: CGFloat(-2*M_PI))
-        */
-        
-        
-        
-        turn.data = [100,56,304,506,304,501,34,200]
+        turn.data = [Data(myValue: 50,myColor: "1ABC9C"), Data(myValue: 70,myColor: "9B59B6"), Data(myValue: 100,myColor: "F1C40F"), Data(myValue: 20,myColor: "2ECC71"), Data(myValue: 40,myColor: "3498DB"), Data(myValue: 150,myColor: "E74C3C")]
         
         
         turn.build()
         
         view.addSubview(turn)
-        /*
-        turn.layer.insertSublayer(shape, atIndex:0)
-        turn.layer.insertSublayer(shape2, atIndex:0)
-        turn.layer.insertSublayer(shape3, atIndex:0)
-        turn.layer.insertSublayer(shape4, atIndex:0)
-        */
+       
 
     }
 
