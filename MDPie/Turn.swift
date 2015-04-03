@@ -41,14 +41,14 @@ class Turn: UIControl {
     var delegate:TurnDelegate!
     
     let smallRadius:CGFloat = 120
-    let bigRadius:CGFloat = 200
+    let bigRadius:CGFloat = 280
     let expand:CGFloat = 50
     
-    let centerX:CGFloat = 300
-    let centerY:CGFloat = 300
+    let centerX:CGFloat = 350
+    let centerY:CGFloat = 350
     
     let percentBoxSizeHeight:CGFloat = 40
-    let percentBoxSizeWidth:CGFloat = 55
+    let percentBoxSizeWidth:CGFloat = 150
     
     var hasBeenDraged:Bool = false
     
@@ -57,12 +57,23 @@ class Turn: UIControl {
     var oldTransform:CATransform3D?
     
     var oldSelected:Int = 0
+    
+    var labelCenter:UILabel = UILabel()
    
+    var copyTransform:CGAffineTransform!
    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         correctCenter = CGPointMake(self.frame.size.width/2, self.frame.size.height/2)
+        copyTransform = self.transform
+        
+        labelCenter.frame = CGRectMake(0, 0, percentBoxSizeWidth, percentBoxSizeHeight)
+        labelCenter.center = CGPointMake(centerX, centerY)
+        labelCenter.textColor = UIColor.blackColor()
+        labelCenter.textAlignment = NSTextAlignment.Center
+        addSubview(labelCenter)
+        
     }
     
     required init(coder: NSCoder) {
@@ -77,6 +88,11 @@ class Turn: UIControl {
             return
         }
         
+        self.transform = copyTransform
+        
+        labelCenter.transform = self.transform
+        labelCenter.text = ""
+        
         var currentShape:CAShapeLayer
         for currentShape in slicesArray {
             currentShape.shapeLayer.removeFromSuperlayer()
@@ -90,6 +106,10 @@ class Turn: UIControl {
         var currentStartAngle:CGFloat = 0
         var currentColor:UIColor = UIColor.grayColor()
         var currentLabel:String
+        
+        
+        
+        
         
 
         var index = 0
@@ -114,17 +134,15 @@ class Turn: UIControl {
             
             
             let label = UILabel(frame: CGRectMake(0, 0, percentBoxSizeWidth, percentBoxSizeHeight))
-            label.center = CGPointMake(300+(smallRadius + (bigRadius-smallRadius)/2)*cos(angleSum), 300+(smallRadius + (bigRadius-smallRadius)/2)*sin(angleSum))
+            label.center = CGPointMake(centerX+(smallRadius + (bigRadius-smallRadius)/2)*cos(angleSum), centerY+(smallRadius + (bigRadius-smallRadius)/2)*sin(angleSum))
             
             
             label.textAlignment = NSTextAlignment.Center
             
-            var nf:NSNumberFormatter = NSNumberFormatter()
-            nf.groupingSize = 3
-            nf.maximumSignificantDigits = 3
-            nf.minimumSignificantDigits = 3
             
-            label.text = nf.stringFromNumber(slicesArray[index].value)?.stringByAppendingString("%")
+            
+            
+            label.text = slicesArray[index].label
             
             label.textColor = UIColor.blackColor()
             
@@ -212,6 +230,12 @@ class Turn: UIControl {
                 
                 oldTransform = openedSlice?.transform
                 
+                var nf:NSNumberFormatter = NSNumberFormatter()
+                nf.groupingSize = 3
+                nf.maximumSignificantDigits = 3
+                nf.minimumSignificantDigits = 3
+                
+                labelCenter.text = nf.stringFromNumber(slicesArray[cpt].value)?.stringByAppendingString("%")
                 
                 var i=0
                 var angleSum:CGFloat = 0
@@ -279,6 +303,8 @@ class Turn: UIControl {
         
        
         let savedTransform = slicesArray[0].labelObj?.transform
+        
+        let savedTransformCenter = labelCenter.transform
     
         
         self.transform = CGAffineTransformRotate(self.transform, -angleDifference)
@@ -290,6 +316,7 @@ class Turn: UIControl {
             
         }
         
+        labelCenter.transform = CGAffineTransformRotate(savedTransformCenter, angleDifference)
         
         return true;
     }

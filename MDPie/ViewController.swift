@@ -14,7 +14,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     
     var slicesData:Array<Data> = Array<Data>()
      
-    let turn = Turn(frame: CGRectMake(0, 0, 600, 600))
+    let turn = Turn(frame: CGRectMake(0, 0, 700, 700))
     
     var i=0
 
@@ -22,7 +22,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         super.viewDidLoad()
         
         
-        slicesData = [Data(myValue: 50,myColor: "1ABC9C", myLabel:"Apple"), Data(myValue: 70,myColor: "9B59B6", myLabel:"Banana"), Data(myValue: 50,myColor: "F1C40F", myLabel:"Coconut"), Data(myValue: 20, myColor: "2ECC71", myLabel:"Strawberry"), Data(myValue: 40,myColor: "3498DB", myLabel:"Mango"), Data(myValue: 150,myColor: "E74C3C", myLabel:"Raspberry")]
+        slicesData = [Data(myValue: 50,myColor: "1ABC9C", myLabel:"Apple"), Data(myValue: 70,myColor: "9B59B6", myLabel:"Banana"), Data(myValue: 50,myColor: "F1C40F", myLabel:"Coconut"), Data(myValue: 40, myColor: "2ECC71", myLabel:"Strawberry"), Data(myValue: 40,myColor: "3498DB", myLabel:"Mango"), Data(myValue: 60,myColor: "E74C3C", myLabel:"Raspberry")]
         
         
         turn.delegate = self
@@ -33,33 +33,17 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         view.addSubview(turn)
         
     
-        let addBtn = UIButton(frame: CGRectMake(650, 100, 400, 200))
-        addBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
-        addBtn.setTitle("Add slice", forState: UIControlState.Normal)
-        addBtn.addTarget(self, action: "addSlice", forControlEvents: UIControlEvents.TouchUpInside)
-        view.addSubview(addBtn)
-        
-        let removeBtn = UIButton(frame: CGRectMake(650, 550, 400, 200))
-        removeBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
-        removeBtn.setTitle("Remove slice", forState: UIControlState.Normal)
-        removeBtn.addTarget(self, action: "removeSlice", forControlEvents: UIControlEvents.TouchUpInside)
-        view.addSubview(removeBtn)
+        let refreshBtn = UIButton(frame: CGRectMake(650, 550, 200, 50))
+        refreshBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
+        refreshBtn.setTitle("Refresh", forState: UIControlState.Normal)
+        refreshBtn.addTarget(self, action: "refresh", forControlEvents: UIControlEvents.TouchUpInside)
+        view.addSubview(refreshBtn)
         
         
 
     }
 
-    func addSlice()  {
-        slicesData.append(Data(myValue:50, myColor:slicesData[++i % slicesData.count-1].color, myLabel:"A new fruit"))
-        turn.build()
-        
-        
-        
-        
-    }
-    
-    func removeSlice()  {
-        slicesData.removeLast()
+    func refresh()  {
         turn.build()
     }
     
