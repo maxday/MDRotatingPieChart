@@ -10,17 +10,31 @@ import Foundation
 import UIKit
 
 
+
+struct DualPath {
+    var bezierPath:UIBezierPath
+    var animationBezierPath:UIBezierPath
+    
+    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath) {
+        self.bezierPath = myBezierPath
+        self.animationBezierPath = myAnimationBezierPath
+    }
+}
+
+
 struct Slice {
     var bezierPath:UIBezierPath
+    var animationBezierPath:UIBezierPath
     var shapeLayer:CAShapeLayer
     var angle:CGFloat
     var label:String
     
-    init(myBezierPath:UIBezierPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String) {
+    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String) {
         self.bezierPath = myBezierPath
         self.shapeLayer = myShapeLayer
         self.angle = myAngle
         self.label = myLabel
+        self.animationBezierPath = myAnimationBezierPath
     }
 }
 

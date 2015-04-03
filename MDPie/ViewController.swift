@@ -52,6 +52,10 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     func addSlice()  {
         slicesData.append(Data(myValue:50, myColor:slicesData[++i % slicesData.count-1].color, myLabel:"A new fruit"))
         turn.build()
+        
+        
+        
+        
     }
     
     func removeSlice()  {

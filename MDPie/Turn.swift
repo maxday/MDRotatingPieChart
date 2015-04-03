@@ -92,6 +92,7 @@ class Turn: UIControl {
             total = total + datasource.valueForSliceAtIndex(index)
         }
 
+       
         
         for (index = 0; index < datasource?.numberOfSlices(); ++index) {
             
@@ -99,12 +100,31 @@ class Turn: UIControl {
             currentColor = datasource.colorForSliceAtIndex(index)
             currentLabel = datasource.labelForSliceAtIndex(index)
             let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel)
+            
+            self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
+            
             currentStartAngle -= currentAngle
             currentEndAngle = currentStartAngle - currentAngle
-            self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
+            
+
+            
+            let animateStrokeEnd = CABasicAnimation(keyPath: "strokeEnd")
+            animateStrokeEnd.duration = 0.5
+            animateStrokeEnd.fromValue = 0.0
+            animateStrokeEnd.toValue = 1.0
+
+            // add the animation
+            slice.shapeLayer.addAnimation(animateStrokeEnd, forKey: "animate stroke end animation")
+            CATransaction.commit()
+            
+
+            
         }
         
-       
+        
+        
+        
+        
         
         
         
@@ -232,9 +252,8 @@ class Turn: UIControl {
         let dx = currentPoint.x - correctCenter.x
         let dy = currentPoint.y - correctCenter.y
         let sqroot = sqrt(dx*dx + dy*dy)
-        return sqroot < smallRadius || sqroot > bigRadius + expand
+        return sqroot < smallRadius || sqroot > (bigRadius + expand + (bigRadius-smallRadius)/2)
     }
-    
     
     func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String) -> Slice {
         
@@ -242,34 +261,37 @@ class Turn: UIControl {
         
         mask.frame = self.frame
         let path = drawSlice(start, end: end)
-        mask.path = path.CGPath
-        mask.lineWidth = 1.0
+        mask.path = path.animationBezierPath.CGPath
+        mask.lineWidth = bigRadius-smallRadius
         mask.strokeColor = color.CGColor
-        
-       
         mask.fillColor = color.CGColor
-       
         
-        
-        
-        var slice = Slice(myBezierPath: path, myShapeLayer: mask, myAngle: end-start, myLabel:label)
+        var slice = Slice(myBezierPath: path.bezierPath, myAnimationBezierPath: path.animationBezierPath, myShapeLayer: mask, myAngle: end-start, myLabel:label)
         slicesArray.append(slice)
         
         return slice;
         
     }
+
     
-    
-    func drawSlice(start:CGFloat, end:CGFloat) -> UIBezierPath {
+    func drawSlice(start:CGFloat, end:CGFloat) -> DualPath {
         
         var path = UIBezierPath()
-        
-        
-        
-        
+        var animationPath = UIBezierPath()
         
         path.moveToPoint(CGPointMake(centerX + smallRadius *  cos(start), centerY + smallRadius * sin(start)))
+        
+
+        animationPath.moveToPoint(CGPointMake(centerX + (smallRadius + (bigRadius-smallRadius)/2) *  cos(start), centerY + (smallRadius + (bigRadius-smallRadius)/2) * sin(start)))
+        
+
         path.addArcWithCenter(CGPointMake(centerX, centerY), radius: smallRadius, startAngle: start, endAngle: end, clockwise: false)
+        
+        animationPath.addArcWithCenter(CGPointMake(centerX, centerY), radius: (smallRadius + (bigRadius-smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
+        
+        animationPath.addArcWithCenter(CGPointMake(centerX, centerY), radius: (smallRadius + (bigRadius-smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
+        
+        
         
         
         var path2 = UIBezierPath()
@@ -283,12 +305,13 @@ class Turn: UIControl {
         
         
         path.addLineToPoint(CGPointMake(centerX + smallRadius *  cos(start), centerY + smallRadius * sin(start)))
+
         
         
         
         
-        
-        return path;
+ 
+        return DualPath(myBezierPath: path, myAnimationBezierPath: animationPath);
         
         
     }
