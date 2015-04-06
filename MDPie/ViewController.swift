@@ -59,23 +59,23 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
  
     
     func didOpenSliceAtIndex(index: Int) {
-        println("Open slice at")
-        println(index)
+        //println("Open slice at")
+        //println(index)
     }
     
     func didCloseSliceAtIndex(index: Int) {
-        println("Close slice at")
-        println(index)
+        //println("Close slice at")
+        //println(index)
     }
     
     func willOpenSliceAtIndex(index: Int) {
-        println("Will open slice at")
-        println(index)
+        //println("Will open slice at")
+        //println(index)
     }
     
     func willCloseSliceAtIndex(index: Int) {
-        println("Will close slice at")
-        println(index)
+        //println("Will close slice at")
+        //println(index)
     }
     
     func colorForSliceAtIndex(index:Int) -> UIColor {

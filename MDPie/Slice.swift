@@ -11,26 +11,28 @@ import UIKit
 
 
 
-struct DualPath {
+struct TrioPath {
     var bezierPath:UIBezierPath
     var animationBezierPath:UIBezierPath
+    var selectionBezierPath:UIBezierPath
     
-    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath) {
+    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath, mySelectionBezierPath:UIBezierPath) {
         self.bezierPath = myBezierPath
         self.animationBezierPath = myAnimationBezierPath
+        self.selectionBezierPath = mySelectionBezierPath
     }
 }
 
 
 struct Slice {
-    var paths:DualPath
+    var paths:TrioPath
     var shapeLayer:CAShapeLayer
     var angle:CGFloat
     var label:String
     var value:CGFloat
     var labelObj:UILabel?
     
-    init(myPaths:DualPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat) {
+    init(myPaths:TrioPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat) {
         self.paths = myPaths
         self.shapeLayer = myShapeLayer
         self.angle = myAngle
