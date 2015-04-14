@@ -1,6 +1,6 @@
 //
-//  Turn.swift
-//  MDPie
+//  MDRotatingPieChart.swift
+//  MDRotatingPieChart
 //
 //  Created by Maxime DAVID on 2015-04-03.
 //  Copyright (c) 2015 Maxime DAVID. All rights reserved.
@@ -10,7 +10,7 @@ import UIKit
 import QuartzCore
 
 
-protocol TurnDataSource {
+protocol MDRotatingPieChartDataSource {
     func colorForSliceAtIndex(index:Int) -> UIColor
     func valueForSliceAtIndex(index:Int) -> CGFloat
     func labelForSliceAtIndex(index:Int) -> String
@@ -18,7 +18,7 @@ protocol TurnDataSource {
     func numberOfSlices() -> Int
 }
 
-@objc protocol TurnDelegate {
+@objc protocol MDRotatingPieChartDelegate {
     optional func willOpenSliceAtIndex(index:Int)
     optional func willCloseSliceAtIndex(index:Int)
     
@@ -48,14 +48,14 @@ struct Properties {
     }
 }
 
-class Turn: UIControl {
+class MDRotatingPieChart: UIControl {
     var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
     
     var properties = Properties()
     
-    var datasource:TurnDataSource!
-    var delegate:TurnDelegate!
+    var datasource:MDRotatingPieChartDataSource!
+    var delegate:MDRotatingPieChartDelegate!
     
     var hasBeenDraged:Bool = false
 

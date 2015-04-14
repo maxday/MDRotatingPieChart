@@ -10,8 +10,7 @@
 		58B195A01ACDDD6F0015F481 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B1959F1ACDDD6F0015F481 /* AppDelegate.swift */; };
 		58B195A21ACDDD6F0015F481 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B195A11ACDDD6F0015F481 /* ViewController.swift */; };
 		58B195A71ACDDD6F0015F481 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58B195A61ACDDD6F0015F481 /* Images.xcassets */; };
-		58B195B61ACDDD700015F481 /* MDPieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B195B51ACDDD700015F481 /* MDPieTests.swift */; };
-		58B195C01ACDFA8A0015F481 /* MDPieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B195BF1ACDFA8A0015F481 /* MDPieChart.swift */; };
+		58B195C01ACDFA8A0015F481 /* MDRotatingPieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B195BF1ACDFA8A0015F481 /* MDRotatingPieChart.swift */; };
 		58FCC36F1ADD6E8F00AC64DE /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58FCC36E1ADD6E8F00AC64DE /* LaunchScreen.xib */; };
 /* End PBXBuildFile section */
 
@@ -32,9 +31,7 @@
 		58B195A11ACDDD6F0015F481 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		58B195A61ACDDD6F0015F481 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		58B195AF1ACDDD700015F481 /* MDPieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDPieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		58B195B41ACDDD700015F481 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		58B195B51ACDDD700015F481 /* MDPieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDPieTests.swift; sourceTree = "<group>"; };
-		58B195BF1ACDFA8A0015F481 /* MDPieChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDPieChart.swift; sourceTree = "<group>"; };
+		58B195BF1ACDFA8A0015F481 /* MDRotatingPieChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDRotatingPieChart.swift; sourceTree = "<group>"; };
 		58FCC36E1ADD6E8F00AC64DE /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,7 +57,6 @@
 			isa = PBXGroup;
 			children = (
 				58B1959C1ACDDD6F0015F481 /* MDPie */,
-				58B195B21ACDDD700015F481 /* MDPieTests */,
 				58B1959B1ACDDD6F0015F481 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,7 +78,7 @@
 				58B195A11ACDDD6F0015F481 /* ViewController.swift */,
 				58B195A61ACDDD6F0015F481 /* Images.xcassets */,
 				58B1959D1ACDDD6F0015F481 /* Supporting Files */,
-				58B195BF1ACDFA8A0015F481 /* MDPieChart.swift */,
+				58B195BF1ACDFA8A0015F481 /* MDRotatingPieChart.swift */,
 			);
 			path = MDPie;
 			sourceTree = "<group>";
@@ -91,23 +87,6 @@
 			isa = PBXGroup;
 			children = (
 				58B1959E1ACDDD6F0015F481 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		58B195B21ACDDD700015F481 /* MDPieTests */ = {
-			isa = PBXGroup;
-			children = (
-				58B195B51ACDDD700015F481 /* MDPieTests.swift */,
-				58B195B31ACDDD700015F481 /* Supporting Files */,
-			);
-			path = MDPieTests;
-			sourceTree = "<group>";
-		};
-		58B195B31ACDDD700015F481 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				58B195B41ACDDD700015F481 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -213,7 +192,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58B195A21ACDDD6F0015F481 /* ViewController.swift in Sources */,
-				58B195C01ACDFA8A0015F481 /* MDPieChart.swift in Sources */,
+				58B195C01ACDFA8A0015F481 /* MDRotatingPieChart.swift in Sources */,
 				58B195A01ACDDD6F0015F481 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -222,7 +201,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58B195B61ACDDD700015F481 /* MDPieTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

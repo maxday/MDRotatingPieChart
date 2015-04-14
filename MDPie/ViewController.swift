@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  MDPie
+//  MDRotatingPieChart
 //
 //  Created by Maxime DAVID on 2015-04-03.
 //  Copyright (c) 2015 Maxime DAVID. All rights reserved.
@@ -9,16 +9,16 @@
 import UIKit
 
 
-class ViewController: UIViewController, TurnDelegate, TurnDataSource {
+class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPieChartDataSource {
     
     var slicesData:Array<Data> = Array<Data>()
      
-    let turn = Turn(frame: CGRectMake(0, 0, 320, 320))
+    let pieChart = MDRotatingPieChart(frame: CGRectMake(0, 0, 320, 320))
 
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        view.addSubview(turn)
+        view.addSubview(pieChart)
         
         slicesData = [
             Data(myValue: 52.4, myColor: UIColor(red: 0.16, green: 0.73, blue: 0.61, alpha: 1), myLabel:"Apple"),
@@ -28,8 +28,8 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
             Data(myValue: 40.9, myColor: UIColor(red: 0.94, green: 0.79, blue: 0.19, alpha: 1), myLabel:"Cherry"),
             Data(myValue: 40.7, myColor: UIColor(red: 0.89, green: 0.49, blue: 0.19, alpha: 1), myLabel:"Mango")]
         
-        turn.delegate = self
-        turn.datasource = self
+        pieChart.delegate = self
+        pieChart.datasource = self
     
         var properties = Properties()
 
@@ -51,7 +51,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         
         properties.nf = nf
         
-        turn.properties = properties
+        pieChart.properties = properties
 
         let refreshBtn = UIButton(frame: CGRectMake(650, 550, 200, 50))
         refreshBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
@@ -66,7 +66,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     }
 
     func refresh()  {
-        turn.build()
+        pieChart.build()
     }
     
     override func didReceiveMemoryWarning() {
