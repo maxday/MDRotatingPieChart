@@ -20,7 +20,7 @@
 			containerPortal = 58B195921ACDDD6F0015F481 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 58B195991ACDDD6F0015F481;
-			remoteInfo = MDPie;
+			remoteInfo = MDRotatingPieChart;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -56,7 +56,7 @@
 		58B195911ACDDD6F0015F481 = {
 			isa = PBXGroup;
 			children = (
-				58B1959C1ACDDD6F0015F481 /* MDPie */,
+				58B1959C1ACDDD6F0015F481 /* MDRotatingPieChart */,
 				58B1959B1ACDDD6F0015F481 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -70,7 +70,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		58B1959C1ACDDD6F0015F481 /* MDPie */ = {
+		58B1959C1ACDDD6F0015F481 /* MDRotatingPieChart */ = {
 			isa = PBXGroup;
 			children = (
 				58FCC36E1ADD6E8F00AC64DE /* LaunchScreen.xib */,
@@ -80,7 +80,8 @@
 				58B1959D1ACDDD6F0015F481 /* Supporting Files */,
 				58B195BF1ACDFA8A0015F481 /* MDRotatingPieChart.swift */,
 			);
-			path = MDPie;
+			name = MDRotatingPieChart;
+			path = MDRotatingPieChart;
 			sourceTree = "<group>";
 		};
 		58B1959D1ACDDD6F0015F481 /* Supporting Files */ = {
@@ -107,7 +108,7 @@
 			dependencies = (
 			);
 			name = MDRotatingPieChart;
-			productName = MDPie;
+			productName = MDRotatingPieChart;
 			productReference = 58B1959A1ACDDD6F0015F481 /* MDRotatingPieChart.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -125,7 +126,7 @@
 				58B195B11ACDDD700015F481 /* PBXTargetDependency */,
 			);
 			name = MDRotatingPieChartTests;
-			productName = MDPieTests;
+			productName = MDRotatingPieChartTests;
 			productReference = 58B195AF1ACDDD700015F481 /* MDRotatingPieChartTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
@@ -298,7 +299,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				INFOPLIST_FILE = MDPie/Info.plist;
+				INFOPLIST_FILE = MDRotatingPieChart/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = MDRotatingPieChart;
@@ -313,7 +314,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				INFOPLIST_FILE = MDPie/Info.plist;
+				INFOPLIST_FILE = MDRotatingPieChart/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = MDRotatingPieChart;
@@ -334,10 +335,10 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = MDPieTests/Info.plist;
+				INFOPLIST_FILE = MDRotatingPieChart/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = MDRotatingPieChartTests;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MDPie.app/MDPie";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MDRotatingPieChart.app/MDRotatingPieChart";
 			};
 			name = Debug;
 		};
@@ -349,10 +350,10 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = MDPieTests/Info.plist;
+				INFOPLIST_FILE = MDRotatingPieChart/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = MDRotatingPieChartTests;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MDPie.app/MDPie";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MDRotatingPieChart.app/MDRotatingPieChart";
 			};
 			name = Release;
 		};
