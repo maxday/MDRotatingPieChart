@@ -234,9 +234,7 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Retrieves the middle point of a slice (to set the label)
-    
     :param: angleSum sum of already prepared slices
-    
     :returns: the middle point
     */
     func getMiddlePoint(angleSum:CGFloat) -> CGPoint {
@@ -252,10 +250,8 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Creates the label
-    
     :param: angleSum sum of already prepared slices
     :param: slice    the slice
-    
     :returns: a new label
     */
     func createLabel(angleSum:CGFloat, slice:Slice) -> UILabel {
@@ -279,7 +275,6 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Adds an animation to a slice
-    
     :param: slice the slice to be animated
     */
     func addAnimation(slice:Slice) {
@@ -295,7 +290,6 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Computes the total value of slices
-    
     :returns: the total value
     */
     func computeTotal() -> CGFloat {
@@ -306,7 +300,9 @@ class MDRotatingPieChart: UIControl {
         return total;
     }
     
-    
+    /**
+    Closes a slice
+    */
     func closeSlice() {
         delegate?.willCloseSliceAtIndex!(currentSelected)
         slicesArray[currentSelected].shapeLayer.transform = oldTransform!
@@ -314,6 +310,11 @@ class MDRotatingPieChart: UIControl {
         labelCenter.text = ""
     }
     
+    /**
+    Opens a slice
+    
+    :param: index the slice index in the data array
+    */
     func openSlice(index:Int) {
     
         //save the transformation
@@ -334,9 +335,7 @@ class MDRotatingPieChart: UIControl {
             }
         }
         
-        
         //move
-        
         var i=0
         var angleSum:CGFloat = 0
         for(i=0; i<index; ++i) {
@@ -358,96 +357,54 @@ class MDRotatingPieChart: UIControl {
         currentSelected = index
     }
     
-    
-    func openCloseSlice(cpt:Int)  {
+    /**
+    Computes the logic of opening/closing slices
+    :param: index the slice index
+    */
+    func openCloseSlice(index:Int)  {
         // nothing is opened, let's opened one slice
         if(currentSelected == -1)  {
-            openSlice(cpt)
+            openSlice(index)
 
         }
         // here a slice is opened, so let's close it before
         else {
             closeSlice()
             //if the same slice is chosen, no need to open
-            if(currentSelected == cpt) {
+            if(currentSelected == index) {
                 currentSelected = -1
             }
             else {
-                openSlice(cpt)
+                openSlice(index)
             }
             
         }
     }
     
     
-    
-    override func endTrackingWithTouch(touch: UITouch, withEvent event: UIEvent) {
-        
-        
-        if(hasBeenDraged) {
-            return
-        }
-        
-       
-        
-        let currentPoint = touch.locationInView(self)
-        
-       
-        
-        
-        
-        
-        
-       
-        var cpt = 0
-        for currentPath in slicesArray {
-            
-            if currentPath.paths.bezierPath.containsPoint(currentPoint) {
-                println("one")
-                openCloseSlice(cpt)
-                return
-            }
-            
-            if currentPath.paths.bezierPath.containsPoint(CGPointMake(currentPoint.x+currentTr.x, currentPoint.y+currentTr.y)) && cpt == currentSelected {
-                println("one")
-                openCloseSlice(cpt)
-                return
-            }
-            
-            cpt++
-        }
-
-        
-    }
-    
+    //UIControl implementation
     override func beginTrackingWithTouch(touch: UITouch, withEvent event: UIEvent) -> Bool {
+        //makes sure to reset the drag event
         hasBeenDraged = false
 
-        
         let currentPoint = touch.locationInView(self)
       
         if ignoreThisTap(currentPoint) {
             return false;
         }
         
-        
-        
         let deltaX = currentPoint.x - pieChartCenter.x
         let deltaY = currentPoint.y - pieChartCenter.y
 
         delta = atan2(deltaY,deltaX)
- 
-        
-        
         return true
     }
     
+    //UIControl implementation
     override func continueTrackingWithTouch(touch: UITouch, withEvent event: UIEvent) -> Bool {
+        //drag event detected, we won't open/close any slices
         hasBeenDraged = true
         let currentPoint = touch.locationInView(self)
-        
-
-        
         
         let deltaX = currentPoint.x - pieChartCenter.x
         let deltaY = currentPoint.y - pieChartCenter.y
@@ -455,19 +412,17 @@ class MDRotatingPieChart: UIControl {
         let ang = atan2(deltaY,deltaX);
         let angleDifference = delta - ang
         
-       
-        let savedTransform = slicesArray[0].labelObj?.transform
-        
-        let savedTransformCenter = labelCenter.transform
-    
-        
+        //rotate !
         self.transform = CGAffineTransformRotate(self.transform, -angleDifference)
+        
+        //reset labels
+        let savedTransform = slicesArray[0].labelObj?.transform
+        let savedTransformCenter = labelCenter.transform
         
         for slice in slicesArray  {
             if(slice.labelObj != nil)  {
                 slice.labelObj?.transform = CGAffineTransformRotate(savedTransform!, angleDifference)
             }
-            
         }
         
         labelCenter.transform = CGAffineTransformRotate(savedTransformCenter, angleDifference)
@@ -475,11 +430,38 @@ class MDRotatingPieChart: UIControl {
         return true;
     }
     
+    //UIControl implementation
+    override func endTrackingWithTouch(touch: UITouch, withEvent event: UIEvent) {
+        //don't open/close slice if a drag event has been detected
+        if(hasBeenDraged) {
+            return
+        }
+        
+        let currentPoint = touch.locationInView(self)
+
+        var cpt = 0
+        for currentPath in slicesArray {
+            
+            //click on a slice
+            if currentPath.paths.bezierPath.containsPoint(currentPoint) {
+                openCloseSlice(cpt)
+                return
+            }
+            
+            //click on the current opened slice
+            if currentPath.paths.bezierPath.containsPoint(CGPointMake(currentPoint.x+currentTr.x, currentPoint.y+currentTr.y)) && cpt == currentSelected {
+                openCloseSlice(cpt)
+                return
+            }
+            
+            cpt++
+        }
+    }
+
+    
     /**
     Checks whether or not a tap shoud be dismissed (too close from the center or too far)
-    
     :param: currentPoint current tapped point
-    
     :returns: true if it should be ignored, false otherwise
     */
     func ignoreThisTap(currentPoint:CGPoint) -> Bool {
@@ -491,14 +473,12 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Creates a slice
-    
     :param: start   start angle
     :param: end     end angle
     :param: color   color
     :param: label   label
     :param: value   value
     :param: percent percent value
-    
     :returns: a new slice
     */
     func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String, value:CGFloat, percent:CGFloat) -> Slice {
@@ -520,10 +500,8 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Formats the text
-    
     :param: slice       a slice
     :param: displayType an enum representing a display value type
-    
     :returns: a formated text ready to be displayed
     */
     func formatFromDisplayValueType(slice:Slice, displayType:DisplayValueType) -> String {
@@ -550,7 +528,14 @@ class MDRotatingPieChart: UIControl {
     
     
     
+    /**
+    Computes and returns a path representing a slice
     
+    :param: start start angle
+    :param: end   end angle
+    
+    :returns: the UIBezierPath build
+    */
     func computeAnimationPath(start:CGFloat, end:CGFloat) -> UIBezierPath {
         var animationPath = UIBezierPath()
         
@@ -564,12 +549,10 @@ class MDRotatingPieChart: UIControl {
     }
 
     /**
-    Computes and returns a triplet of UIBezierPaths
-    
+    Computes and returns a pair of UIBezierPaths
     :param: start start angle
     :param: end   end angle
-    
-    :returns: the triplet
+    :returns: the pair
     */
     func computeDualPath(start:CGFloat, end:CGFloat) -> DualPath {
         
@@ -585,11 +568,9 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Tells whether or not the given frame is overlapping with a shape (delimited by an UIBeizerPath)
-    
     :param: frame  the frame
     :param: path   the path
     :param: inside tells whether or not the path should be inside the path
-    
     :returns: true if it fits, false otherwise
     */
     func frameFitInPath(frame:CGRect, path:UIBezierPath, inside:Bool) -> Bool {
@@ -624,6 +605,9 @@ class MDRotatingPieChart: UIControl {
 
 }
 
+/**
+*  Stores both BezierPaths, one for the animation and the "real one"
+*/
 struct DualPath {
     var bezierPath:UIBezierPath
     var animationBezierPath:UIBezierPath
@@ -634,6 +618,9 @@ struct DualPath {
     }
 }
 
+/**
+*  Stores a slice
+*/
 struct Slice {
     var paths:DualPath
     var shapeLayer:CAShapeLayer
@@ -653,6 +640,13 @@ struct Slice {
     }
 }
 
+/**
+Helper enum to format the labels
+
+- Percent: the percent value
+- Value:   the raw value
+- Label:   the description
+*/
 enum DisplayValueType {
     case Percent
     case Value

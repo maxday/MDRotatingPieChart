@@ -65,7 +65,14 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         pieChart.properties = properties
         */
         
-        let refreshBtn = UIButton(frame: CGRectMake((view.frame.width-200)/2, view.frame.width, 200, 50))
+
+        let title = UILabel(frame: CGRectMake(0, view.frame.width, view.frame.width, 80))
+        title.text = "MDRotatingPieChart demo \nclick on a slice, or drag the pie :)"
+        title.textAlignment = .Center
+        title.numberOfLines = 2
+        view.addSubview(title)
+        
+        let refreshBtn = UIButton(frame: CGRectMake((view.frame.width-200)/2, view.frame.width+80, 200, 50))
         refreshBtn.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
         refreshBtn.setTitle("Refresh", forState: UIControlState.Normal)
         refreshBtn.addTarget(self, action: "refresh", forControlEvents: UIControlEvents.TouchUpInside)
