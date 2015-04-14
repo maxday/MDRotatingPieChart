@@ -109,77 +109,70 @@ class MDRotatingPieChart: UIControl {
         labelCenter.transform = self.transform
         labelCenter.text = ""
         
-        var currentShape:CAShapeLayer
         for currentShape in slicesArray {
             currentShape.shapeLayer.removeFromSuperlayer()
         }
         slicesArray.removeAll(keepCapacity: false)
         
-        
         var total = computeTotal()
         
-        var currentAngle:CGFloat = 0
-        var currentEndAngle:CGFloat = 0
         var currentStartAngle:CGFloat = 0
-        var currentColor:UIColor = UIColor.grayColor()
-        var currentLabel:String
-        var currentValue:CGFloat
-
         var angleSum:CGFloat = 0
         
         for (var index = 0; index < datasource?.numberOfSlices(); ++index) {
-            
-            currentValue  = datasource.valueForSliceAtIndex(index)
-            currentAngle = currentValue * 2 * CGFloat(M_PI) / total
-            currentColor = datasource.colorForSliceAtIndex(index)
-            currentLabel = datasource.labelForSliceAtIndex(index)
-            
-            var slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
-            
-            angleSum += slice.angle/2
-            
-            let label = createLabel(angleSum, slice: slice)
-  
-            
-            slicesArray[index].labelObj = label
-            slicesArray[index].shapeLayer.addSublayer(label.layer)
-            
-            
-            angleSum += slice.angle/2
-
-            self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
-            
-            currentStartAngle -= currentAngle
-            currentEndAngle = currentStartAngle - currentAngle
-            
-
-            if(properties.enableAnimation) {
-                addAnimation(slice)
-            }
-
+            prepareSlice(&angleSum, currentStartAngle: &currentStartAngle, total: total, index: index)
         }
-        
-        
-        
-        
-        
-        
-        
-        
+    }
     
-
     
+    func prepareSlice(inout angleSum:CGFloat, inout currentStartAngle:CGFloat, total:CGFloat, index:Int) {
+    
+        let currentValue  = datasource.valueForSliceAtIndex(index)
+        let currentAngle = currentValue * 2 * CGFloat(M_PI) / total
+        let currentColor = datasource.colorForSliceAtIndex(index)
+        let currentLabel = datasource.labelForSliceAtIndex(index)
+        
+        //create slice
+        let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
+        
+        //create label
+        let label = createLabel(angleSum + slice.angle/2, slice: slice)
+        
+        //populate slicesArray
+        slicesArray[index].labelObj = label
+        slicesArray[index].shapeLayer.addSublayer(label.layer)
+        
+        angleSum += slice.angle
+        
+        self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
+        
+        currentStartAngle -= currentAngle
+        
+        if(properties.enableAnimation) {
+            addAnimation(slice)
+        }
+    }
+    
+    func getMiddlePoint(angleSum:CGFloat) -> CGPoint {
+        
+        let middleRadiusX = properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2
+        let middleRadiusY = properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2
+        
+        return CGPointMake(
+            cos(angleSum) * middleRadiusX + pieChartCenter.x,
+            sin(angleSum) * middleRadiusY + pieChartCenter.y
+        )
     }
     
     
     func createLabel(angleSum:CGFloat, slice:Slice) -> UILabel {
         let label = UILabel(frame: CGRectZero)
-        label.center = CGPointMake(pieChartCenter.x+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*cos(angleSum), pieChartCenter.y+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*sin(angleSum))
+        
+        label.center = getMiddlePoint(angleSum)
         
         label.textAlignment = NSTextAlignment.Center
         label.textColor = UIColor.blackColor()
         label.font = properties.fontTextInSlices
-        
         
         label.text = formatFromDisplayValueType(slice, displayType: properties.displayValueTypeInSlices)
         
