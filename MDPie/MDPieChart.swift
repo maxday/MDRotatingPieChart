@@ -31,17 +31,17 @@ protocol TurnDataSource {
 struct Properties {
     var smallRadius:CGFloat = 120
     var bigRadius:CGFloat = 280
-    var expand:CGFloat = 90
+    var expand:CGFloat = 50
     
-    var percentBoxSizeHeight:CGFloat = 40
-    var percentBoxSizeWidth:CGFloat = 150
+   // var percentBoxSizeHeight:CGFloat = 40
+   // var percentBoxSizeWidth:CGFloat = 150
     
     var displayValueTypeInSlices:DisplayValueType = .Percent
     var displayValueTypeCenter:DisplayValueType = .Label
 
-    var nf = NSNumberFormatter()
+    var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 12)!
     
-    var center:CGPoint = CGPointZero
+    var nf = NSNumberFormatter()
     
     init() {
         nf.groupingSize = 3
@@ -71,20 +71,31 @@ class Turn: UIControl {
     var copyTransform:CGAffineTransform!
     
     var angleSum:CGFloat = 0
+    
+    var pieChartCenter:CGPoint = CGPointZero
   
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        
+       
+        
+        pieChartCenter.x = frame.width/2
+        pieChartCenter.y = frame.height/2
+        
+        
+        
         copyTransform = self.transform
         
-        labelCenter.frame = CGRectMake(0, 0, properties.percentBoxSizeWidth, properties.percentBoxSizeHeight)
-        labelCenter.center = CGPointMake(properties.center.x, properties.center.y)
+        
+        labelCenter.frame = CGRectZero
+        labelCenter.sizeToFit()
+        labelCenter.center = CGPointMake(pieChartCenter.x, pieChartCenter.y)
         labelCenter.textColor = UIColor.blackColor()
         labelCenter.textAlignment = NSTextAlignment.Center
         
-        properties.center.x = frame.width/2
-        properties.center.y = frame.height/2
+        
         
         addSubview(labelCenter)
     }
@@ -96,7 +107,7 @@ class Turn: UIControl {
    
     
     func build() {
-        
+        println("prop \(pieChartCenter)")
         if(datasource == nil) {
             println("Did you forget to set your datasource ?")
             return
@@ -149,14 +160,31 @@ class Turn: UIControl {
             //label creation
             
             
-            let label = UILabel(frame: CGRectMake(0, 0, properties.percentBoxSizeWidth, properties.percentBoxSizeHeight))
-            label.center = CGPointMake(properties.center.x+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*cos(angleSum), properties.center.y+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*sin(angleSum))
+            
+        
+            
+            
+            let label = UILabel(frame: CGRectZero)
+            label.center = CGPointMake(pieChartCenter.x+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*cos(angleSum), pieChartCenter.y+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*sin(angleSum))
             
             
             label.textAlignment = NSTextAlignment.Center
             label.textColor = UIColor.blackColor()
             
+            
+            
+            label.font = properties.fontTextInSlices
+            
+            
             label.text = formatFromDisplayValueType(slice, displayType: properties.displayValueTypeInSlices)
+            
+            
+            label.sizeToFit()
+            println(label.frame)
+            label.frame = CGRectMake(label.frame.origin.x-(label.frame.width/2), label.frame.origin.y-(label.frame.height/2), label.frame.width, label.frame.height)
+            
+            
+            label.hidden = !frameFitInPath(label.frame, path: slicesArray[index].paths.bezierPath)
             
             slicesArray[index].labelObj = label
             slicesArray[index].shapeLayer.addSublayer(label.layer)
@@ -299,7 +327,6 @@ class Turn: UIControl {
         let currentPoint = touch.locationInView(self)
       
         if ignoreThisTap(currentPoint) {
-            println("ignore")
             return false;
         }
         
@@ -352,8 +379,8 @@ class Turn: UIControl {
     
     
     func ignoreThisTap(currentPoint:CGPoint) -> Bool {
-        let dx = currentPoint.x - 350
-        let dy = currentPoint.y - 350
+        let dx = currentPoint.x - pieChartCenter.x
+        let dy = currentPoint.y - pieChartCenter.y
         let sqroot = sqrt(dx*dx + dy*dy)
         return sqroot < properties.smallRadius || sqroot > (properties.bigRadius + properties.expand + (properties.bigRadius-properties.smallRadius)/2)
     }
@@ -412,48 +439,52 @@ class Turn: UIControl {
         var animationPath = UIBezierPath()
         var pathToDetectMiddlePoint = UIBezierPath()
         
-       
+    
         
-        path.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
+        path.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
         
-        selectionPath.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
+        
+        println(path.currentPoint)
+        
+        
+        selectionPath.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
         
 
-        animationPath.moveToPoint(CGPointMake(properties.center.x + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) *  cos(start), properties.center.y + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) * sin(start)))
+        animationPath.moveToPoint(CGPointMake(pieChartCenter.x + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) *  cos(start), pieChartCenter.y + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) * sin(start)))
         
 
-        path.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
+        path.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
         
-        selectionPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
+        selectionPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
         
         
   
         
         
         
-        animationPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
+        animationPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
         
         
         
         
         
-        animationPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
+        animationPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
         
       
         
         
         var path2 = UIBezierPath()
-        path2.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y))
+        path2.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y))
         
         
         var path2Selection = UIBezierPath()
-        path2Selection.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y))
+        path2Selection.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y))
         
         
-        path2.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius, startAngle: start, endAngle: end, clockwise: false)
+        path2.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius, startAngle: start, endAngle: end, clockwise: false)
         
         
-        path2Selection.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius+properties.expand, startAngle: start, endAngle: end, clockwise: false)
+        path2Selection.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius+properties.expand, startAngle: start, endAngle: end, clockwise: false)
         
         
         
@@ -461,22 +492,40 @@ class Turn: UIControl {
         
         selectionPath.addLineToPoint(path2Selection.currentPoint)
         
-        path.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius, startAngle: end, endAngle: start, clockwise: true)
+        path.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius, startAngle: end, endAngle: start, clockwise: true)
         
         
-        path.addLineToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
+        path.addLineToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
         
         
         
-        selectionPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius + properties.expand, startAngle: end, endAngle: start, clockwise: true)
+        selectionPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius + properties.expand, startAngle: end, endAngle: start, clockwise: true)
         
         
-        selectionPath.addLineToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
+        selectionPath.addLineToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
         
         
 
         return TrioPath(myBezierPath: path, myAnimationBezierPath: animationPath, mySelectionBezierPath: selectionPath)
         
+    }
+    
+    
+    func frameFitInPath(frame:CGRect, path:UIBezierPath) -> Bool {
+        
+        let topLeftPoint = frame.origin
+        let topRightPoint = CGPointMake(frame.origin.x + frame.width, frame.origin.y)
+        let bottomLeftPoint = CGPointMake(frame.origin.x, frame.origin.y + frame.height)
+        let bottomRightPoint = CGPointMake(frame.origin.x + frame.width, frame.origin.y + frame.height)
+        
+        if(!path.containsPoint(topLeftPoint)
+            || !path.containsPoint(topRightPoint)
+            || !path.containsPoint(bottomLeftPoint)
+            || !path.containsPoint(bottomRightPoint)) {
+                return false
+        }
+        
+        return true
     }
 
     

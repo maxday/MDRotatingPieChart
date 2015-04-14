@@ -11,16 +11,14 @@ import UIKit
 
 class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     
-    
-    
     var slicesData:Array<Data> = Array<Data>()
      
-    let turn = Turn(frame: CGRectMake(0, 0, 700, 700))
-    
-    var i=0
+    let turn = Turn(frame: CGRectMake(0, 0, 320, 320))
 
     override func viewDidLoad() {
+        
         super.viewDidLoad()
+        view.addSubview(turn)
         
         slicesData = [
             Data(myValue: 52.4, myColor: UIColor(red: 0.16, green: 0.73, blue: 0.61, alpha: 1), myLabel:"Apple"),
@@ -30,22 +28,20 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
             Data(myValue: 40.9, myColor: UIColor(red: 0.94, green: 0.79, blue: 0.19, alpha: 1), myLabel:"Strawberry"),
             Data(myValue: 40.7, myColor: UIColor(red: 0.89, green: 0.49, blue: 0.19, alpha: 1), myLabel:"Mango")]
         
-        
         turn.delegate = self
         turn.datasource = self
-        
-
+    
         var properties = Properties()
 
-        properties.smallRadius = 120
-        properties.bigRadius = 280
-        properties.expand = 90
+        properties.smallRadius = 50
+        properties.bigRadius = 100
+        properties.expand = 25
     
-        properties.percentBoxSizeHeight = 40
-        properties.percentBoxSizeWidth = 150
         
         properties.displayValueTypeInSlices = .Percent
         properties.displayValueTypeCenter = .Label
+        
+        properties.fontTextInSlices = UIFont(name: "Arial", size: 24)!
         
         var nf = NSNumberFormatter()
         nf.groupingSize = 3
@@ -54,18 +50,18 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         
         properties.nf = nf
         
-        //turn.properties = properties
+        turn.properties = properties
 
-        turn.build()
-
-        view.addSubview(turn)
-        
-    
         let refreshBtn = UIButton(frame: CGRectMake(650, 550, 200, 50))
         refreshBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
         refreshBtn.setTitle("Refresh", forState: UIControlState.Normal)
         refreshBtn.addTarget(self, action: "refresh", forControlEvents: UIControlEvents.TouchUpInside)
         view.addSubview(refreshBtn)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        refresh()
     }
 
     func refresh()  {
