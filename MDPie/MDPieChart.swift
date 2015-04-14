@@ -51,7 +51,7 @@ struct TurnProperties {
 class Turn: UIControl {
     var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
-    var oldPosition:CGPoint = CGPointMake(0, 0)
+
     
     let properties = TurnProperties()
     
