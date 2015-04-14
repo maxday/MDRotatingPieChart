@@ -12,13 +12,14 @@ import UIKit
 class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPieChartDataSource {
     
     var slicesData:Array<Data> = Array<Data>()
-     
-    let pieChart = MDRotatingPieChart(frame: CGRectMake(0, 0, 320, 320))
+    
+    var pieChart:MDRotatingPieChart!
 
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        view.addSubview(pieChart)
+        
+        pieChart = MDRotatingPieChart(frame: CGRectMake(0, 0, view.frame.width, view.frame.width))
         
         slicesData = [
             Data(myValue: 52.4, myColor: UIColor(red: 0.16, green: 0.73, blue: 0.61, alpha: 1), myLabel:"Apple"),
@@ -31,6 +32,12 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         pieChart.delegate = self
         pieChart.datasource = self
     
+        view.addSubview(pieChart)
+        
+        /* 
+        Here you can dig into some properties
+        -------------------------------------
+        
         var properties = Properties()
 
         properties.smallRadius = 50
@@ -56,28 +63,18 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         properties.nf = nf
         
         pieChart.properties = properties
-
-        let refreshBtn = UIButton(frame: CGRectMake(0, 400, 200, 50))
-        refreshBtn.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
+        */
+        
+        let refreshBtn = UIButton(frame: CGRectMake((view.frame.width-200)/2, view.frame.width, 200, 50))
+        refreshBtn.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
         refreshBtn.setTitle("Refresh", forState: UIControlState.Normal)
         refreshBtn.addTarget(self, action: "refresh", forControlEvents: UIControlEvents.TouchUpInside)
+        refreshBtn.backgroundColor = UIColor.lightGrayColor()
         view.addSubview(refreshBtn)
     }
     
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
-        refresh()
-    }
-
-    func refresh()  {
-        pieChart.build()
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
+    //Delegate
+    //some sample messages when actions are triggered (open/close slices)
     func didOpenSliceAtIndex(index: Int) {
         println("Open slice at \(index)")
     }
@@ -94,6 +91,7 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         println("Will close slice at \(index)")
     }
     
+    //Datasource
     func colorForSliceAtIndex(index:Int) -> UIColor {
         return slicesData[index].color
     }
@@ -110,7 +108,19 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         return slicesData.count
     }
     
-
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        refresh()
+    }
+    
+    func refresh()  {
+        pieChart.build()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
 }
 
 

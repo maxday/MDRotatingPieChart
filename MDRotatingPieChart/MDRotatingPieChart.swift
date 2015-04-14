@@ -9,39 +9,97 @@
 import UIKit
 import QuartzCore
 
-
+/**
+*  DataSource : all methods are mandatory to build the pie chart
+*/
 protocol MDRotatingPieChartDataSource {
+    
+    /**
+    Gets slice color
+    :param: index slice index in your data array
+    :returns: the color of the slice at the given index
+    */
     func colorForSliceAtIndex(index:Int) -> UIColor
+    
+    /**
+    Gets slice value
+    :param: index slice index in your data array
+    :returns: the value of the slice at the given index
+    */
     func valueForSliceAtIndex(index:Int) -> CGFloat
+    
+    /**
+    Gets slice label
+    :param: index slice index in your data array
+    :returns: the label of the slice at the given index
+    */
     func labelForSliceAtIndex(index:Int) -> String
     
+    /**
+    Gets number of slices
+    :param: index slice index in your data array
+    :returns: the number of slices
+    */
     func numberOfSlices() -> Int
 }
 
+/**
+*  Delegate : all methods are optional
+*/
 @objc protocol MDRotatingPieChartDelegate {
+    
+    /**
+    Triggered when a slice is going to be opened
+    :param: index slice index in your data array
+    */
     optional func willOpenSliceAtIndex(index:Int)
+    
+    /**
+    Triggered when a slice is going to be closed
+    :param: index slice index in your data array
+    */
     optional func willCloseSliceAtIndex(index:Int)
     
+    /**
+    Triggered when a slice has just finished opening
+    :param: index slice index in your data array
+    */
     optional func didOpenSliceAtIndex(index:Int)
+    
+    /**
+    Triggered when a slice has just finished closing
+    :param: index slice index in your data array
+    */
     optional func didCloseSliceAtIndex(index:Int)
 }
 
-
-
+/**
+*  Properties, to customize your pie chart (actually this is not mandatory to use this structure since all values have a default behaviour)
+*/
 struct Properties {
-    var smallRadius:CGFloat = 120
-    var bigRadius:CGFloat = 280
-    var expand:CGFloat = 50
+    //smallest of both radius
+    var smallRadius:CGFloat = 50
+    //biggest of both radius
+    var bigRadius:CGFloat = 120
+    //value of the translation when a slice is openned
+    var expand:CGFloat = 25
     
+    //label format in slices
     var displayValueTypeInSlices:DisplayValueType = .Percent
+    //label format in center
     var displayValueTypeCenter:DisplayValueType = .Label
 
-    var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 10)!
+    //font to use in slices
+    var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 12)!
+    //font to use in the center
     var fontTextCenter:UIFont = UIFont(name: "Arial", size: 10)!
     
+    //tells whether or not the pie should be animated
     var enableAnimation = true
+    //if so, this describes the duration of the animation
     var animationDuration:CFTimeInterval = 0.5
     
+    //number formatter to use
     var nf = NSNumberFormatter()
     
     init() {
@@ -53,27 +111,33 @@ struct Properties {
 
 class MDRotatingPieChart: UIControl {
     
+    //stores the slices
     var slicesArray:Array<Slice> = Array<Slice>()
-    var delta:CGFloat = 0
     
+    var delta:CGFloat = 0
+    //properties configuration
     var properties = Properties()
     
+    //datasource and delegate
     var datasource:MDRotatingPieChartDataSource!
     var delegate:MDRotatingPieChartDelegate!
     
+    //tells whether or not a drag action has been done, is so, do not open or close a slice
     var hasBeenDraged:Bool = false
-
-    var openedSlice:CAShapeLayer?
     
+    //saves the previous transfomation
     var oldTransform:CATransform3D?
     
-    var oldSelected:Int = -1
+    //saves the selected slice index
+    var currentSelected:Int = -1
+    
+    //label
     var labelCenter:UILabel = UILabel()
-   
-    var originalTransform:CGAffineTransform!
 
+    //saves the center of the pie chart
     var pieChartCenter:CGPoint = CGPointZero
     
+    //current slice translation
     var currentTr:CGPoint = CGPointZero
   
     override init(frame: CGRect) {
@@ -82,9 +146,6 @@ class MDRotatingPieChart: UIControl {
         //saves the center (since the frame will change after some rotations)
         pieChartCenter.x = frame.width/2
         pieChartCenter.y = frame.height/2
-        
-        //saves the transform property so that it will be easy to reset the pieChart
-        originalTransform = self.transform
         
         //builds and adds the centered label
         labelCenter.frame = CGRectZero
@@ -102,7 +163,7 @@ class MDRotatingPieChart: UIControl {
     Resets the pie chart
     */
     func reset() {
-        self.transform = originalTransform
+        self.transform = CGAffineTransformMake(1, 0, 0, 1, 0, 0)
         
         labelCenter.transform = self.transform
         labelCenter.text = ""
@@ -137,7 +198,6 @@ class MDRotatingPieChart: UIControl {
     
     /**
     Prepares the slice and adds it to the pie chart
-    
     :param: angleSum          sum of already prepared slices
     :param: currentStartAngle start angle
     :param: total             total value of the pie chart
@@ -247,54 +307,42 @@ class MDRotatingPieChart: UIControl {
     }
     
     
-    func openCloseSlice(cpt:Int)  {
+    func closeSlice() {
+        delegate?.willCloseSliceAtIndex!(currentSelected)
+        slicesArray[currentSelected].shapeLayer.transform = oldTransform!
+        delegate?.didCloseSliceAtIndex!(currentSelected)
+        labelCenter.text = ""
+    }
+    
+    func openSlice(index:Int) {
+    
+        //save the transformation
+        oldTransform = slicesArray[index].shapeLayer.transform
         
-        if((openedSlice?.transform) != nil)  {
-            delegate?.willCloseSliceAtIndex!(oldSelected)
-            openedSlice?.transform = oldTransform!
-            delegate?.didCloseSliceAtIndex!(oldSelected)
-            labelCenter.text = ""
-        }
-        
-        
-        if(openedSlice == slicesArray[cpt].shapeLayer) {
-            openedSlice = nil
-            oldSelected = -1
-            return
-        }
-        
-        openedSlice = slicesArray[cpt].shapeLayer
-        oldSelected = cpt
-        
-        oldTransform = openedSlice?.transform
-        
-        
-        labelCenter.text = formatFromDisplayValueType(slicesArray[cpt], displayType: properties.displayValueTypeCenter)
+        //update the label
+        labelCenter.text = formatFromDisplayValueType(slicesArray[index], displayType: properties.displayValueTypeCenter)
         let centerTmp = labelCenter.center
         labelCenter.sizeToFit()
         labelCenter.center = centerTmp
         
         labelCenter.hidden = false
-        var index = 0;
-        for (; index < datasource?.numberOfSlices(); ++index) {
-            if(!frameFitInPath(labelCenter.frame, path: slicesArray[index].paths.bezierPath, inside:false)) {
-                println(index)
+        var cpt = 0;
+        for (; cpt < datasource?.numberOfSlices(); ++cpt) {
+            if(!frameFitInPath(labelCenter.frame, path: slicesArray[cpt].paths.bezierPath, inside:false)) {
                 labelCenter.hidden = true
                 break;
             }
         }
-      
         
         
+        //move
         
         var i=0
         var angleSum:CGFloat = 0
-        for(i=0; i<cpt; ++i) {
+        for(i=0; i<index; ++i) {
             angleSum += slicesArray[i].angle
         }
-        angleSum += slicesArray[cpt].angle/2.0
-        
-        
+        angleSum += slicesArray[index].angle/2.0
         
         let transX:CGFloat = properties.expand*cos(angleSum)
         let transY:CGFloat = properties.expand*sin(angleSum)
@@ -302,10 +350,33 @@ class MDRotatingPieChart: UIControl {
         let translate = CATransform3DMakeTranslation(transX, transY, 0);
         currentTr = CGPointMake(-transX, -transY)
         
-        delegate?.willOpenSliceAtIndex!(cpt)
-        openedSlice?.transform = translate
+        delegate?.willOpenSliceAtIndex!(index)
+        slicesArray[index].shapeLayer.transform = translate
         
-        delegate?.didOpenSliceAtIndex!(cpt)
+        delegate?.didOpenSliceAtIndex!(index)
+        
+        currentSelected = index
+    }
+    
+    
+    func openCloseSlice(cpt:Int)  {
+        // nothing is opened, let's opened one slice
+        if(currentSelected == -1)  {
+            openSlice(cpt)
+
+        }
+        // here a slice is opened, so let's close it before
+        else {
+            closeSlice()
+            //if the same slice is chosen, no need to open
+            if(currentSelected == cpt) {
+                currentSelected = -1
+            }
+            else {
+                openSlice(cpt)
+            }
+            
+        }
     }
     
     
@@ -317,7 +388,7 @@ class MDRotatingPieChart: UIControl {
             return
         }
         
-        println("oldOp \(oldSelected)")
+       
         
         let currentPoint = touch.locationInView(self)
         
@@ -337,7 +408,7 @@ class MDRotatingPieChart: UIControl {
                 return
             }
             
-            if currentPath.paths.bezierPath.containsPoint(CGPointMake(currentPoint.x+currentTr.x, currentPoint.y+currentTr.y)) && cpt == oldSelected {
+            if currentPath.paths.bezierPath.containsPoint(CGPointMake(currentPoint.x+currentTr.x, currentPoint.y+currentTr.y)) && cpt == currentSelected {
                 println("one")
                 openCloseSlice(cpt)
                 return
