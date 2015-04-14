@@ -51,7 +51,6 @@ struct TurnProperties {
 class Turn: UIControl {
     var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
-    var correctCenter:CGPoint = CGPointMake(0, 0)
     var oldPosition:CGPoint = CGPointMake(0, 0)
     
     let properties = TurnProperties()
@@ -77,7 +76,7 @@ class Turn: UIControl {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        correctCenter = CGPointMake(self.frame.size.width/2, self.frame.size.height/2)
+        
         copyTransform = self.transform
         
         labelCenter.frame = CGRectMake(0, 0, properties.percentBoxSizeWidth, properties.percentBoxSizeHeight)
@@ -301,8 +300,8 @@ class Turn: UIControl {
         
         
         
-        let deltaX = currentPoint.x - correctCenter.x;
-        let deltaY = currentPoint.y - correctCenter.y;
+        let deltaX = currentPoint.x - self.frame.width/2
+        let deltaY = currentPoint.y - self.frame.height/2
 
         delta = atan2(deltaY,deltaX)
  
@@ -318,8 +317,8 @@ class Turn: UIControl {
 
         
         
-        let deltaX = currentPoint.x - correctCenter.x;
-        let deltaY = currentPoint.y - correctCenter.y;
+        let deltaX = currentPoint.x - self.frame.width/2
+        let deltaY = currentPoint.y - self.frame.height/2
         
         let ang = atan2(deltaY,deltaX);
         let angleDifference = delta - ang
@@ -348,8 +347,8 @@ class Turn: UIControl {
     
     
     func ignoreThisTap(currentPoint:CGPoint) -> Bool {
-        let dx = currentPoint.x - correctCenter.x
-        let dy = currentPoint.y - correctCenter.y
+        let dx = currentPoint.x - self.frame.width/2
+        let dy = currentPoint.y - self.frame.height/2
         let sqroot = sqrt(dx*dx + dy*dy)
         return sqroot < properties.smallRadius || sqroot > (properties.bigRadius + properties.expand + (properties.bigRadius-properties.smallRadius)/2)
     }
