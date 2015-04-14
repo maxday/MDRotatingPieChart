@@ -73,6 +73,8 @@ class MDRotatingPieChart: UIControl {
     var originalTransform:CGAffineTransform!
 
     var pieChartCenter:CGPoint = CGPointZero
+    
+    var currentTr:CGPoint = CGPointZero
   
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -257,6 +259,7 @@ class MDRotatingPieChart: UIControl {
         
         if(openedSlice == slicesArray[cpt].shapeLayer) {
             openedSlice = nil
+            oldSelected = -1
             return
         }
         
@@ -297,7 +300,7 @@ class MDRotatingPieChart: UIControl {
         let transY:CGFloat = properties.expand*sin(angleSum)
         
         let translate = CATransform3DMakeTranslation(transX, transY, 0);
-        
+        currentTr = CGPointMake(-transX, -transY)
         
         delegate?.willOpenSliceAtIndex!(cpt)
         openedSlice?.transform = translate
@@ -314,24 +317,32 @@ class MDRotatingPieChart: UIControl {
             return
         }
         
+        println("oldOp \(oldSelected)")
         
         let currentPoint = touch.locationInView(self)
         
+       
         
         
-        let transX:CGFloat = properties.expand
-        let transY:CGFloat = properties.expand
         
         
-        let currentPointTranslated = CGPointMake(currentPoint.x - transX, currentPoint.y - transY)
+        
        
         var cpt = 0
         for currentPath in slicesArray {
             
-            if currentPath.paths.selectionBezierPath.containsPoint(currentPoint) {
+            if currentPath.paths.bezierPath.containsPoint(currentPoint) {
+                println("one")
                 openCloseSlice(cpt)
                 return
             }
+            
+            if currentPath.paths.bezierPath.containsPoint(CGPointMake(currentPoint.x+currentTr.x, currentPoint.y+currentTr.y)) && cpt == oldSelected {
+                println("one")
+                openCloseSlice(cpt)
+                return
+            }
+            
             cpt++
         }
 
@@ -424,9 +435,9 @@ class MDRotatingPieChart: UIControl {
         var mask = CAShapeLayer()
         
         mask.frame = self.frame
-        let path = drawSlice(start, end: end)
+        let path = computeTrioPath(start, end: end)
         mask.path = path.animationBezierPath.CGPath
-        mask.lineWidth = properties.bigRadius-properties.smallRadius
+        mask.lineWidth = properties.bigRadius - properties.smallRadius
         mask.strokeColor = color.CGColor
         mask.fillColor = color.CGColor
         
@@ -465,59 +476,78 @@ class MDRotatingPieChart: UIControl {
 
         return toRet;
     }
+    
+    
+    
+    func computePath(start:CGFloat, end:CGFloat, isSelection:Bool) -> UIBezierPath {
+    
+        var path = UIBezierPath()
+        
+        let startPointX = pieChartCenter.x + properties.smallRadius * cos(start)
+        let startPointY = pieChartCenter.y + properties.smallRadius * sin(start)
+        
+        let startPoint = CGPointMake(startPointX, startPointY)
+        
+        var delta = (isSelection) ? properties.expand : 0
+        
+        path.moveToPoint(startPoint)
+        
+        path.addArcWithCenter(pieChartCenter, radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
+        
+        
+        var helperPath = UIBezierPath()
+        helperPath.moveToPoint(CGPointMake(startPointX, pieChartCenter.y))
+        
+        helperPath.addArcWithCenter(pieChartCenter, radius: (properties.bigRadius + delta), startAngle: start, endAngle: end, clockwise: false)
+        
+        path.addLineToPoint(helperPath.currentPoint)
+        
+        path.addArcWithCenter(pieChartCenter, radius: (properties.bigRadius + delta), startAngle: end, endAngle: start, clockwise: true)
+        
+        path.addLineToPoint(startPoint)
+        
+        
+        
+        return path;
+    }
+    
+    func computeAnimationPath(start:CGFloat, end:CGFloat) -> UIBezierPath {
+        var animationPath = UIBezierPath()
+        
+        animationPath.moveToPoint(getMiddlePoint(start))
+        
+        animationPath.addArcWithCenter(pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
+        
+        animationPath.addArcWithCenter(pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
+        
+        
+        
+        
+        return animationPath;
+    }
 
     /**
-    Draws a slice and return a triplet of UIBezierPaths
+    Computes and returns a triplet of UIBezierPaths
     
     :param: start start angle
     :param: end   end angle
     
     :returns: the triplet
     */
-    func drawSlice(start:CGFloat, end:CGFloat) -> TrioPath {
-        
-        var path = UIBezierPath()
-        var selectionPath = UIBezierPath()
-        var animationPath = UIBezierPath()
-        
-        path.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
-
-        selectionPath.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
-        
-        animationPath.moveToPoint(CGPointMake(pieChartCenter.x + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) *  cos(start), pieChartCenter.y + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) * sin(start)))
-        
-        path.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
-        
-        selectionPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
-
-        animationPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
-
-        animationPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
-
-        var path2 = UIBezierPath()
-        path2.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y))
-        
-        var path2Selection = UIBezierPath()
-        path2Selection.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y))
-        
-        path2.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius, startAngle: start, endAngle: end, clockwise: false)
-        
-        path2Selection.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius+properties.expand, startAngle: start, endAngle: end, clockwise: false)
-        
-        path.addLineToPoint(path2.currentPoint)
-        
-        selectionPath.addLineToPoint(path2Selection.currentPoint)
-        
-        path.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius, startAngle: end, endAngle: start, clockwise: true)
+    func computeTrioPath(start:CGFloat, end:CGFloat) -> TrioPath {
         
         
-        path.addLineToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
+        let pathRef = computeAnimationPath(start, end: end)
         
-        selectionPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius + properties.expand, startAngle: end, endAngle: start, clockwise: true)
         
-        selectionPath.addLineToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
-
-        return TrioPath(myBezierPath: path, myAnimationBezierPath: animationPath, mySelectionBezierPath: selectionPath)
+        let other = CGPathCreateCopyByStrokingPath(pathRef.CGPath, nil, properties.bigRadius-properties.smallRadius, kCGLineCapButt, kCGLineJoinMiter, 1)
+        
+        let other2 = CGPathCreateCopyByStrokingPath(pathRef.CGPath, nil, 30, kCGLineCapButt, kCGLineJoinMiter, 1)
+        
+        let ok = UIBezierPath(CGPath: other)
+        let ok2 = UIBezierPath(CGPath: other2)
+        
+        return TrioPath(myBezierPath: ok, myAnimationBezierPath: pathRef, mySelectionBezierPath: ok2)
     }
     
     
