@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "58B195991ACDDD6F0015F481"
-               BuildableName = "MDPie.app"
-               BlueprintName = "MDPie"
-               ReferencedContainer = "container:MDPie.xcodeproj">
+               BuildableName = "MDRotatingPieChart.app"
+               BlueprintName = "MDRotatingPieChart"
+               ReferencedContainer = "container:MDRotatingPieChart.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "58B195AE1ACDDD700015F481"
-               BuildableName = "MDPieTests.xctest"
-               BlueprintName = "MDPieTests"
-               ReferencedContainer = "container:MDPie.xcodeproj">
+               BuildableName = "MDRotatingPieChartTests.xctest"
+               BlueprintName = "MDRotatingPieChartTests"
+               ReferencedContainer = "container:MDRotatingPieChart.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "58B195AE1ACDDD700015F481"
-               BuildableName = "MDPieTests.xctest"
-               BlueprintName = "MDPieTests"
-               ReferencedContainer = "container:MDPie.xcodeproj">
+               BuildableName = "MDRotatingPieChartTests.xctest"
+               BlueprintName = "MDRotatingPieChartTests"
+               ReferencedContainer = "container:MDRotatingPieChart.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "58B195991ACDDD6F0015F481"
-            BuildableName = "MDPie.app"
-            BlueprintName = "MDPie"
-            ReferencedContainer = "container:MDPie.xcodeproj">
+            BuildableName = "MDRotatingPieChart.app"
+            BlueprintName = "MDRotatingPieChart"
+            ReferencedContainer = "container:MDRotatingPieChart.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -77,9 +77,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "58B195991ACDDD6F0015F481"
-            BuildableName = "MDPie.app"
-            BlueprintName = "MDPie"
-            ReferencedContainer = "container:MDPie.xcodeproj">
+            BuildableName = "MDRotatingPieChart.app"
+            BlueprintName = "MDRotatingPieChart"
+            ReferencedContainer = "container:MDRotatingPieChart.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -96,9 +96,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "58B195991ACDDD6F0015F481"
-            BuildableName = "MDPie.app"
-            BlueprintName = "MDPie"
-            ReferencedContainer = "container:MDPie.xcodeproj">
+            BuildableName = "MDRotatingPieChart.app"
+            BlueprintName = "MDRotatingPieChart"
+            ReferencedContainer = "container:MDRotatingPieChart.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

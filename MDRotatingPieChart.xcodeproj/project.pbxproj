@@ -25,12 +25,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		58B1959A1ACDDD6F0015F481 /* MDPie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MDPie.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		58B1959A1ACDDD6F0015F481 /* MDRotatingPieChart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MDRotatingPieChart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B1959E1ACDDD6F0015F481 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58B1959F1ACDDD6F0015F481 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		58B195A11ACDDD6F0015F481 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		58B195A61ACDDD6F0015F481 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		58B195AF1ACDDD700015F481 /* MDPieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDPieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		58B195AF1ACDDD700015F481 /* MDRotatingPieChartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDRotatingPieChartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B195BF1ACDFA8A0015F481 /* MDRotatingPieChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDRotatingPieChart.swift; sourceTree = "<group>"; };
 		58FCC36E1ADD6E8F00AC64DE /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -64,8 +64,8 @@
 		58B1959B1ACDDD6F0015F481 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				58B1959A1ACDDD6F0015F481 /* MDPie.app */,
-				58B195AF1ACDDD700015F481 /* MDPieTests.xctest */,
+				58B1959A1ACDDD6F0015F481 /* MDRotatingPieChart.app */,
+				58B195AF1ACDDD700015F481 /* MDRotatingPieChartTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -94,9 +94,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		58B195991ACDDD6F0015F481 /* MDPie */ = {
+		58B195991ACDDD6F0015F481 /* MDRotatingPieChart */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58B195B91ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDPie" */;
+			buildConfigurationList = 58B195B91ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDRotatingPieChart" */;
 			buildPhases = (
 				58B195961ACDDD6F0015F481 /* Sources */,
 				58B195971ACDDD6F0015F481 /* Frameworks */,
@@ -106,14 +106,14 @@
 			);
 			dependencies = (
 			);
-			name = MDPie;
+			name = MDRotatingPieChart;
 			productName = MDPie;
-			productReference = 58B1959A1ACDDD6F0015F481 /* MDPie.app */;
+			productReference = 58B1959A1ACDDD6F0015F481 /* MDRotatingPieChart.app */;
 			productType = "com.apple.product-type.application";
 		};
-		58B195AE1ACDDD700015F481 /* MDPieTests */ = {
+		58B195AE1ACDDD700015F481 /* MDRotatingPieChartTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58B195BC1ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDPieTests" */;
+			buildConfigurationList = 58B195BC1ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDRotatingPieChartTests" */;
 			buildPhases = (
 				58B195AB1ACDDD700015F481 /* Sources */,
 				58B195AC1ACDDD700015F481 /* Frameworks */,
@@ -124,9 +124,9 @@
 			dependencies = (
 				58B195B11ACDDD700015F481 /* PBXTargetDependency */,
 			);
-			name = MDPieTests;
+			name = MDRotatingPieChartTests;
 			productName = MDPieTests;
-			productReference = 58B195AF1ACDDD700015F481 /* MDPieTests.xctest */;
+			productReference = 58B195AF1ACDDD700015F481 /* MDRotatingPieChartTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -148,7 +148,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 58B195951ACDDD6F0015F481 /* Build configuration list for PBXProject "MDPie" */;
+			buildConfigurationList = 58B195951ACDDD6F0015F481 /* Build configuration list for PBXProject "MDRotatingPieChart" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -161,8 +161,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				58B195991ACDDD6F0015F481 /* MDPie */,
-				58B195AE1ACDDD700015F481 /* MDPieTests */,
+				58B195991ACDDD6F0015F481 /* MDRotatingPieChart */,
+				58B195AE1ACDDD700015F481 /* MDRotatingPieChartTests */,
 			);
 		};
 /* End PBXProject section */
@@ -209,7 +209,7 @@
 /* Begin PBXTargetDependency section */
 		58B195B11ACDDD700015F481 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 58B195991ACDDD6F0015F481 /* MDPie */;
+			target = 58B195991ACDDD6F0015F481 /* MDRotatingPieChart */;
 			targetProxy = 58B195B01ACDDD700015F481 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -249,7 +249,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -285,7 +285,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -301,7 +301,7 @@
 				INFOPLIST_FILE = MDPie/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = MDRotatingPieChart;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -316,7 +316,7 @@
 				INFOPLIST_FILE = MDPie/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = MDRotatingPieChart;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -336,7 +336,7 @@
 				);
 				INFOPLIST_FILE = MDPieTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = MDRotatingPieChartTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MDPie.app/MDPie";
 			};
 			name = Debug;
@@ -351,7 +351,7 @@
 				);
 				INFOPLIST_FILE = MDPieTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = MDRotatingPieChartTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MDPie.app/MDPie";
 			};
 			name = Release;
@@ -359,7 +359,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		58B195951ACDDD6F0015F481 /* Build configuration list for PBXProject "MDPie" */ = {
+		58B195951ACDDD6F0015F481 /* Build configuration list for PBXProject "MDRotatingPieChart" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B195B71ACDDD700015F481 /* Debug */,
@@ -368,7 +368,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58B195B91ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDPie" */ = {
+		58B195B91ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDRotatingPieChart" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B195BA1ACDDD700015F481 /* Debug */,
@@ -377,7 +377,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58B195BC1ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDPieTests" */ = {
+		58B195BC1ACDDD700015F481 /* Build configuration list for PBXNativeTarget "MDRotatingPieChartTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B195BD1ACDDD700015F481 /* Debug */,
