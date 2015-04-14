@@ -43,6 +43,10 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         
         properties.fontTextInSlices = UIFont(name: "Arial", size: 12)!
         properties.fontTextCenter = UIFont(name: "Arial", size: 10)!
+
+        properties.enableAnimation = true
+        properties.animationDuration = 0.5
+        
         
         var nf = NSNumberFormatter()
         nf.groupingSize = 3

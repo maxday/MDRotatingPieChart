@@ -39,6 +39,9 @@ struct Properties {
     var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 10)!
     var fontTextCenter:UIFont = UIFont(name: "Arial", size: 10)!
     
+    var enableAnimation = true
+    var animationDuration:CFTimeInterval = 0.5
+    
     var nf = NSNumberFormatter()
     
     init() {
@@ -66,36 +69,27 @@ class MDRotatingPieChart: UIControl {
     var oldSelected:Int = -1
     var labelCenter:UILabel = UILabel()
    
-    var copyTransform:CGAffineTransform!
-    
-    var angleSum:CGFloat = 0
-    
+    var originalTransform:CGAffineTransform!
+
     var pieChartCenter:CGPoint = CGPointZero
   
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        
-       
-        
+        //saves the center (since the frame will change after some rotations)
         pieChartCenter.x = frame.width/2
         pieChartCenter.y = frame.height/2
         
+        //saves the transform property so that it will be easy to reset the pieChart
+        originalTransform = self.transform
         
-        
-        copyTransform = self.transform
-        
-        
+        //builds and adds the centered label
         labelCenter.frame = CGRectZero
-        labelCenter.sizeToFit()
         labelCenter.center = CGPointMake(pieChartCenter.x, pieChartCenter.y)
         labelCenter.textColor = UIColor.blackColor()
         labelCenter.textAlignment = NSTextAlignment.Center
-        
-        
-        
-        
         addSubview(labelCenter)
     }
     
@@ -103,8 +97,6 @@ class MDRotatingPieChart: UIControl {
         super.init(coder: coder)
     }
 
-   
-    
     func build() {
 
         if(datasource == nil) {
@@ -112,7 +104,7 @@ class MDRotatingPieChart: UIControl {
             return
         }
         
-        self.transform = copyTransform
+        self.transform = originalTransform
         
         labelCenter.transform = self.transform
         labelCenter.text = ""
@@ -124,96 +116,47 @@ class MDRotatingPieChart: UIControl {
         slicesArray.removeAll(keepCapacity: false)
         
         
-        var total:CGFloat = 0
+        var total = computeTotal()
+        
         var currentAngle:CGFloat = 0
         var currentEndAngle:CGFloat = 0
         var currentStartAngle:CGFloat = 0
         var currentColor:UIColor = UIColor.grayColor()
         var currentLabel:String
         var currentValue:CGFloat
-        
-        
-        
-        
 
-        var index = 0
-        for (index=0; index < datasource.numberOfSlices(); ++index) {
-            total = total + datasource.valueForSliceAtIndex(index)
-        }
-
+        var angleSum:CGFloat = 0
         
-        angleSum = 0
-        
-        for (index = 0; index < datasource?.numberOfSlices(); ++index) {
+        for (var index = 0; index < datasource?.numberOfSlices(); ++index) {
+            
             currentValue  = datasource.valueForSliceAtIndex(index)
             currentAngle = currentValue * 2 * CGFloat(M_PI) / total
             currentColor = datasource.colorForSliceAtIndex(index)
             currentLabel = datasource.labelForSliceAtIndex(index)
-            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
             
+            var slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
             
             angleSum += slice.angle/2
             
-            //label creation
-            
-            
-            
-        
-            
-            
-            let label = UILabel(frame: CGRectZero)
-            label.center = CGPointMake(pieChartCenter.x+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*cos(angleSum), pieChartCenter.y+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*sin(angleSum))
-            
-            
-            label.textAlignment = NSTextAlignment.Center
-            label.textColor = UIColor.blackColor()
-            
-            
-            
-            label.font = properties.fontTextInSlices
-            
-            
-            label.text = formatFromDisplayValueType(slice, displayType: properties.displayValueTypeInSlices)
-            
-            
-            repositionLabel(label)
-
-            label.hidden = !frameFitInPath(label.frame, path: slicesArray[index].paths.bezierPath, inside:true)
+            let label = createLabel(angleSum, slice: slice)
+  
             
             slicesArray[index].labelObj = label
             slicesArray[index].shapeLayer.addSublayer(label.layer)
-
-            
-            //end label creation
             
             
             angleSum += slice.angle/2
-            
-            
-            
-            
-            
-            
-            
-            
+
             self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
             
             currentStartAngle -= currentAngle
             currentEndAngle = currentStartAngle - currentAngle
             
 
-            
-            let animateStrokeEnd = CABasicAnimation(keyPath: "strokeEnd")
-            animateStrokeEnd.duration = 0.5
-            animateStrokeEnd.fromValue = 0.0
-            animateStrokeEnd.toValue = 1.0
+            if(properties.enableAnimation) {
+                addAnimation(slice)
+            }
 
-            // add the animation
-            slice.shapeLayer.addAnimation(animateStrokeEnd, forKey: "animate stroke end animation")
-            CATransaction.commit()
-            
-
-            
         }
         
         
@@ -229,6 +172,53 @@ class MDRotatingPieChart: UIControl {
     }
     
     
+    func createLabel(angleSum:CGFloat, slice:Slice) -> UILabel {
+        let label = UILabel(frame: CGRectZero)
+        label.center = CGPointMake(pieChartCenter.x+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*cos(angleSum), pieChartCenter.y+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*sin(angleSum))
+        
+        label.textAlignment = NSTextAlignment.Center
+        label.textColor = UIColor.blackColor()
+        label.font = properties.fontTextInSlices
+        
+        
+        label.text = formatFromDisplayValueType(slice, displayType: properties.displayValueTypeInSlices)
+        
+        let tmpCenter = label.center
+        label.sizeToFit()
+        label.center = tmpCenter
+        label.hidden = !frameFitInPath(label.frame, path: slice.paths.bezierPath, inside:true)
+        return label;
+    }
+    
+    
+    /**
+    Adds an animation to a slice
+    
+    :param: slice the slice to be animated
+    */
+    func addAnimation(slice:Slice) {
+        
+        let animateStrokeEnd = CABasicAnimation(keyPath: "strokeEnd")
+        animateStrokeEnd.duration = properties.animationDuration
+        animateStrokeEnd.fromValue = 0.0
+        animateStrokeEnd.toValue = 1.0
+        
+        slice.shapeLayer.addAnimation(animateStrokeEnd, forKey: "animate stroke end animation")
+        CATransaction.commit()
+    }
+    
+    /**
+    Computes the total value of slices
+    
+    :returns: the total value
+    */
+    func computeTotal() -> CGFloat {
+        var total:CGFloat = 0
+        for (var index=0; index < datasource.numberOfSlices(); ++index) {
+            total = total + datasource.valueForSliceAtIndex(index)
+        }
+        return total;
+    }
     
     
     func openCloseSlice(cpt:Int)  {
@@ -305,8 +295,8 @@ class MDRotatingPieChart: UIControl {
         
         
         
-        let transX:CGFloat = properties.expand*cos(angleSum)
-        let transY:CGFloat = properties.expand*sin(angleSum)
+        let transX:CGFloat = properties.expand
+        let transY:CGFloat = properties.expand
         
         
         let currentPointTranslated = CGPointMake(currentPoint.x - transX, currentPoint.y - transY)
@@ -413,6 +403,15 @@ class MDRotatingPieChart: UIControl {
         
     }
     
+    
+    /**
+    Formats the text
+    
+    :param: slice       a slice
+    :param: displayType an enum representing a display value type
+    
+    :returns: a formated text ready to be displayed
+    */
     func formatFromDisplayValueType(slice:Slice, displayType:DisplayValueType) -> String {
     
         var toRet = ""
@@ -515,6 +514,15 @@ class MDRotatingPieChart: UIControl {
     }
     
     
+    /**
+    Tells whether or not the given frame is overlapping with a shape (delimited by an UIBeizerPath)
+    
+    :param: frame  the frame
+    :param: path   the path
+    :param: inside tells whether or not the path should be inside the path
+    
+    :returns: true if it fits, false otherwise
+    */
     func frameFitInPath(frame:CGRect, path:UIBezierPath, inside:Bool) -> Bool {
         
         let topLeftPoint = frame.origin
@@ -543,18 +551,7 @@ class MDRotatingPieChart: UIControl {
         return true
     }
 
-    
-    
-    
-    
-    
-    
-    func repositionLabel(label:UILabel) {
-        label.sizeToFit()
-        label.frame = CGRectMake(label.frame.origin.x-(label.frame.width/2), label.frame.origin.y-(label.frame.height/2), label.frame.width, label.frame.height)
-    }
 
-    
 
 }
 
