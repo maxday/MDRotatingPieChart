@@ -28,18 +28,20 @@ protocol TurnDataSource {
 
 
 
-struct TurnProperties {
-    let smallRadius:CGFloat = 120
-    let bigRadius:CGFloat = 280
-    let expand:CGFloat = 90
+struct Properties {
+    var smallRadius:CGFloat = 120
+    var bigRadius:CGFloat = 280
+    var expand:CGFloat = 90
     
-    let percentBoxSizeHeight:CGFloat = 40
-    let percentBoxSizeWidth:CGFloat = 150
+    var percentBoxSizeHeight:CGFloat = 40
+    var percentBoxSizeWidth:CGFloat = 150
     
-    let displayValueTypeInSlices:DisplayValueType = .Percent
-    let displayValueTypeCenter:DisplayValueType = .Label
+    var displayValueTypeInSlices:DisplayValueType = .Percent
+    var displayValueTypeCenter:DisplayValueType = .Label
 
     var nf = NSNumberFormatter()
+    
+    var center:CGPoint = CGPointZero
     
     init() {
         nf.groupingSize = 3
@@ -51,27 +53,24 @@ struct TurnProperties {
 class Turn: UIControl {
     var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
-
     
-    let properties = TurnProperties()
-    
+    var properties = Properties()
     
     var datasource:TurnDataSource!
     var delegate:TurnDelegate!
     
     var hasBeenDraged:Bool = false
-    
+
     var openedSlice:CAShapeLayer?
     
     var oldTransform:CATransform3D?
     
-    var oldSelected:Int = 0
-    
+    var oldSelected:Int = -1
     var labelCenter:UILabel = UILabel()
    
     var copyTransform:CGAffineTransform!
     
-    var angleSum:CGFloat = -1
+    var angleSum:CGFloat = 0
   
     
     override init(frame: CGRect) {
@@ -80,9 +79,13 @@ class Turn: UIControl {
         copyTransform = self.transform
         
         labelCenter.frame = CGRectMake(0, 0, properties.percentBoxSizeWidth, properties.percentBoxSizeHeight)
-        labelCenter.center = CGPointMake((self.frame.width/2), (self.frame.height/2))
+        labelCenter.center = CGPointMake(properties.center.x, properties.center.y)
         labelCenter.textColor = UIColor.blackColor()
         labelCenter.textAlignment = NSTextAlignment.Center
+        
+        properties.center.x = frame.width/2
+        properties.center.y = frame.height/2
+        
         addSubview(labelCenter)
     }
     
@@ -90,13 +93,16 @@ class Turn: UIControl {
         super.init(coder: coder)
     }
 
-  
+   
+    
     func build() {
         
         if(datasource == nil) {
             println("Did you forget to set your datasource ?")
             return
         }
+        
+  
         
         self.transform = copyTransform
         
@@ -144,7 +150,7 @@ class Turn: UIControl {
             
             
             let label = UILabel(frame: CGRectMake(0, 0, properties.percentBoxSizeWidth, properties.percentBoxSizeHeight))
-            label.center = CGPointMake((self.frame.width/2)+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*cos(angleSum), (self.frame.height/2)+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*sin(angleSum))
+            label.center = CGPointMake(properties.center.x+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*cos(angleSum), properties.center.y+(properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2)*sin(angleSum))
             
             
             label.textAlignment = NSTextAlignment.Center
@@ -267,7 +273,6 @@ class Turn: UIControl {
         let transX:CGFloat = properties.expand*cos(angleSum)
         let transY:CGFloat = properties.expand*sin(angleSum)
         
-        println("angleSum = \(angleSum) transX = \(transX) and transY = \(transY)")
         
         let currentPointTranslated = CGPointMake(currentPoint.x - transX, currentPoint.y - transY)
         
@@ -347,8 +352,8 @@ class Turn: UIControl {
     
     
     func ignoreThisTap(currentPoint:CGPoint) -> Bool {
-        let dx = currentPoint.x - self.frame.width/2
-        let dy = currentPoint.y - self.frame.height/2
+        let dx = currentPoint.x - 350
+        let dy = currentPoint.y - 350
         let sqroot = sqrt(dx*dx + dy*dy)
         return sqroot < properties.smallRadius || sqroot > (properties.bigRadius + properties.expand + (properties.bigRadius-properties.smallRadius)/2)
     }
@@ -409,46 +414,46 @@ class Turn: UIControl {
         
        
         
-        path.moveToPoint(CGPointMake((self.frame.width/2) + properties.smallRadius *  cos(start), (self.frame.height/2) + properties.smallRadius * sin(start)))
+        path.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
         
-        selectionPath.moveToPoint(CGPointMake((self.frame.width/2) + properties.smallRadius *  cos(start), (self.frame.height/2) + properties.smallRadius * sin(start)))
-        
-
-        animationPath.moveToPoint(CGPointMake((self.frame.width/2) + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) *  cos(start), (self.frame.height/2) + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) * sin(start)))
+        selectionPath.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
         
 
-        path.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
+        animationPath.moveToPoint(CGPointMake(properties.center.x + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) *  cos(start), properties.center.y + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) * sin(start)))
         
-        selectionPath.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
+
+        path.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
+        
+        selectionPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
         
         
   
         
         
         
-        animationPath.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
+        animationPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
         
         
         
         
         
-        animationPath.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
+        animationPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
         
       
         
         
         var path2 = UIBezierPath()
-        path2.moveToPoint(CGPointMake((self.frame.width/2) + properties.smallRadius *  cos(start), (self.frame.height/2)))
+        path2.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y))
         
         
         var path2Selection = UIBezierPath()
-        path2Selection.moveToPoint(CGPointMake((self.frame.width/2) + properties.smallRadius *  cos(start), (self.frame.height/2)))
+        path2Selection.moveToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y))
         
         
-        path2.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: properties.bigRadius, startAngle: start, endAngle: end, clockwise: false)
+        path2.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius, startAngle: start, endAngle: end, clockwise: false)
         
         
-        path2Selection.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: properties.bigRadius+properties.expand, startAngle: start, endAngle: end, clockwise: false)
+        path2Selection.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius+properties.expand, startAngle: start, endAngle: end, clockwise: false)
         
         
         
@@ -456,17 +461,17 @@ class Turn: UIControl {
         
         selectionPath.addLineToPoint(path2Selection.currentPoint)
         
-        path.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: properties.bigRadius, startAngle: end, endAngle: start, clockwise: true)
+        path.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius, startAngle: end, endAngle: start, clockwise: true)
         
         
-        path.addLineToPoint(CGPointMake((self.frame.width/2) + properties.smallRadius *  cos(start), (self.frame.height/2) + properties.smallRadius * sin(start)))
+        path.addLineToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
         
         
         
-        selectionPath.addArcWithCenter(CGPointMake((self.frame.width/2), (self.frame.height/2)), radius: properties.bigRadius + properties.expand, startAngle: end, endAngle: start, clockwise: true)
+        selectionPath.addArcWithCenter(CGPointMake(properties.center.x, properties.center.y), radius: properties.bigRadius + properties.expand, startAngle: end, endAngle: start, clockwise: true)
         
         
-        selectionPath.addLineToPoint(CGPointMake((self.frame.width/2) + properties.smallRadius *  cos(start), (self.frame.height/2) + properties.smallRadius * sin(start)))
+        selectionPath.addLineToPoint(CGPointMake(properties.center.x + properties.smallRadius *  cos(start), properties.center.y + properties.smallRadius * sin(start)))
         
         
 

@@ -34,6 +34,28 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         turn.delegate = self
         turn.datasource = self
         
+
+        var properties = Properties()
+
+        properties.smallRadius = 120
+        properties.bigRadius = 280
+        properties.expand = 90
+    
+        properties.percentBoxSizeHeight = 40
+        properties.percentBoxSizeWidth = 150
+        
+        properties.displayValueTypeInSlices = .Percent
+        properties.displayValueTypeCenter = .Label
+        
+        var nf = NSNumberFormatter()
+        nf.groupingSize = 3
+        nf.maximumSignificantDigits = 2
+        nf.minimumSignificantDigits = 2
+        
+        properties.nf = nf
+        
+        //turn.properties = properties
+
         turn.build()
 
         view.addSubview(turn)
