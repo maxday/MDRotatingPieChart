@@ -26,7 +26,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
             Data(myValue: 50, myColor: UIColor(red: 0.6, green: 0.36, blue: 0.71, alpha: 1), myLabel:"Coconut"),
             Data(myValue: 60.1, myColor: UIColor(red: 0.46, green: 0.82, blue: 0.44, alpha: 1), myLabel:"Raspberry"),
             Data(myValue: 40.9, myColor: UIColor(red: 0.94, green: 0.79, blue: 0.19, alpha: 1), myLabel:"Strawberry"),
-            Data(myValue: 40.7, myColor: UIColor(red: 0.89, green: 0.49, blue: 0.19, alpha: 1), myLabel:"Mango")]
+            Data(myValue: 40.7, myColor: UIColor(red: 0.89, green: 0.49, blue: 0.19, alpha: 1), myLabel:"Mangoooooooooooo")]
         
         turn.delegate = self
         turn.datasource = self
@@ -42,6 +42,7 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         properties.displayValueTypeCenter = .Label
         
         properties.fontTextInSlices = UIFont(name: "Arial", size: 24)!
+        properties.fontTextCenter = UIFont(name: "Arial", size: 10)!
         
         var nf = NSNumberFormatter()
         nf.groupingSize = 3

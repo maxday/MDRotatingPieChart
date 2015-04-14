@@ -40,6 +40,7 @@ struct Properties {
     var displayValueTypeCenter:DisplayValueType = .Label
 
     var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 12)!
+    var fontTextCenter:UIFont = UIFont(name: "Arial", size: 12)!
     
     var nf = NSNumberFormatter()
     
@@ -97,6 +98,7 @@ class Turn: UIControl {
         
         
         
+        
         addSubview(labelCenter)
     }
     
@@ -119,6 +121,9 @@ class Turn: UIControl {
         
         labelCenter.transform = self.transform
         labelCenter.text = ""
+        
+        labelCenter.text = "OK"
+        repositionLabel(labelCenter)
         
         var currentShape:CAShapeLayer
         for currentShape in slicesArray {
@@ -179,12 +184,9 @@ class Turn: UIControl {
             label.text = formatFromDisplayValueType(slice, displayType: properties.displayValueTypeInSlices)
             
             
-            label.sizeToFit()
-            println(label.frame)
-            label.frame = CGRectMake(label.frame.origin.x-(label.frame.width/2), label.frame.origin.y-(label.frame.height/2), label.frame.width, label.frame.height)
-            
-            
-            label.hidden = !frameFitInPath(label.frame, path: slicesArray[index].paths.bezierPath)
+            repositionLabel(label)
+
+            label.hidden = !frameFitInPath(label.frame, path: slicesArray[index].paths.bezierPath, inside:true)
             
             slicesArray[index].labelObj = label
             slicesArray[index].shapeLayer.addSublayer(label.layer)
@@ -260,7 +262,22 @@ class Turn: UIControl {
         
         
         labelCenter.text = formatFromDisplayValueType(slicesArray[cpt], displayType: properties.displayValueTypeCenter)
-
+        let centerTmp = labelCenter.center
+        labelCenter.sizeToFit()
+        labelCenter.center = centerTmp
+        
+        labelCenter.hidden = false
+        var index = 0;
+        for (; index < datasource?.numberOfSlices(); ++index) {
+            if(!frameFitInPath(labelCenter.frame, path: slicesArray[index].paths.bezierPath, inside:false)) {
+                println(index)
+                labelCenter.hidden = true
+                break;
+            }
+        }
+      
+        
+        
         
         var i=0
         var angleSum:CGFloat = 0
@@ -511,21 +528,43 @@ class Turn: UIControl {
     }
     
     
-    func frameFitInPath(frame:CGRect, path:UIBezierPath) -> Bool {
+    func frameFitInPath(frame:CGRect, path:UIBezierPath, inside:Bool) -> Bool {
         
         let topLeftPoint = frame.origin
         let topRightPoint = CGPointMake(frame.origin.x + frame.width, frame.origin.y)
         let bottomLeftPoint = CGPointMake(frame.origin.x, frame.origin.y + frame.height)
         let bottomRightPoint = CGPointMake(frame.origin.x + frame.width, frame.origin.y + frame.height)
         
-        if(!path.containsPoint(topLeftPoint)
-            || !path.containsPoint(topRightPoint)
-            || !path.containsPoint(bottomLeftPoint)
-            || !path.containsPoint(bottomRightPoint)) {
-                return false
+        if(inside) {
+            if(!path.containsPoint(topLeftPoint)
+                || !path.containsPoint(topRightPoint)
+                || !path.containsPoint(bottomLeftPoint)
+                || !path.containsPoint(bottomRightPoint)) {
+                    return false
+            }
+        }
+        
+        if(!inside) {
+            if(path.containsPoint(topLeftPoint)
+                || path.containsPoint(topRightPoint)
+                || path.containsPoint(bottomLeftPoint)
+                || path.containsPoint(bottomRightPoint)) {
+                    return false
+            }
         }
         
         return true
+    }
+
+    
+    
+    
+    
+    
+    
+    func repositionLabel(label:UILabel) {
+        label.sizeToFit()
+        label.frame = CGRectMake(label.frame.origin.x-(label.frame.width/2), label.frame.origin.y-(label.frame.height/2), label.frame.width, label.frame.height)
     }
 
     
