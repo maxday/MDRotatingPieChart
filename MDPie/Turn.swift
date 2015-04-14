@@ -2,8 +2,8 @@
 //  Turn.swift
 //  MDPie
 //
-//  Created by got2bex on 2015-04-03.
-//  Copyright (c) 2015 MD. All rights reserved.
+//  Created by Maxime DAVID on 2015-04-03.
+//  Copyright (c) 2015 Maxime DAVID. All rights reserved.
 //
 
 import UIKit
@@ -11,13 +11,11 @@ import QuartzCore
 
 
 protocol TurnDataSource {
-    
     func colorForSliceAtIndex(index:Int) -> UIColor
     func valueForSliceAtIndex(index:Int) -> CGFloat
     func labelForSliceAtIndex(index:Int) -> String
     
     func numberOfSlices() -> Int
-
 }
 
 enum DisplayValueType {
@@ -27,17 +25,16 @@ enum DisplayValueType {
 }
 
 @objc protocol TurnDelegate {
-    
     optional func willOpenSliceAtIndex(index:Int)
     optional func willCloseSliceAtIndex(index:Int)
     
     optional func didOpenSliceAtIndex(index:Int)
     optional func didCloseSliceAtIndex(index:Int)
-    
 }
 
+
+
 struct TurnProperties {
-    
     let smallRadius:CGFloat = 120
     let bigRadius:CGFloat = 280
     let expand:CGFloat = 90
@@ -49,13 +46,18 @@ struct TurnProperties {
     let percentBoxSizeWidth:CGFloat = 150
     
     let displayValueTypeInSlices:DisplayValueType = .Value
-    let displayValueTypeCenter:DisplayValueType = .Percent
-
-
+    let displayValueTypeCenter:DisplayValueType = .Label
+    
+    var nf = NSNumberFormatter()
+    
+    init() {
+        nf.groupingSize = 3
+        nf.maximumSignificantDigits = 3
+        nf.minimumSignificantDigits = 3
+    }
 }
 
 class Turn: UIControl {
-    
     var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
     var correctCenter:CGPoint = CGPointMake(0, 0)
@@ -80,7 +82,7 @@ class Turn: UIControl {
     var copyTransform:CGAffineTransform!
     
     var angleSum:CGFloat = -1
-    var nf:NSNumberFormatter = NSNumberFormatter()
+  
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -92,13 +94,6 @@ class Turn: UIControl {
         labelCenter.textColor = UIColor.blackColor()
         labelCenter.textAlignment = NSTextAlignment.Center
         addSubview(labelCenter)
-        
-        
-        nf.groupingSize = 3
-        nf.maximumSignificantDigits = 3
-        nf.minimumSignificantDigits = 3
-
-        
     }
     
     required init(coder: NSCoder) {
@@ -240,7 +235,8 @@ class Turn: UIControl {
         oldTransform = openedSlice?.transform
         
         
-        labelCenter.text = nf.stringFromNumber(slicesArray[cpt].value)?.stringByAppendingString("%")
+        labelCenter.text = formatFromDisplayValueType(slicesArray[cpt], displayType: properties.displayValueTypeCenter)
+
         
         var i=0
         var angleSum:CGFloat = 0
@@ -395,12 +391,12 @@ class Turn: UIControl {
     
         var toRet = ""
         
-        switch(properties.displayValueTypeInSlices) {
+        switch(displayType) {
         case .Value :
-            toRet = nf.stringFromNumber(slice.value)!
+            toRet = properties.nf.stringFromNumber(slice.value)!
             break
         case .Percent :
-            toRet = (nf.stringFromNumber(slice.percent)?.stringByAppendingString("%"))!
+            toRet = (properties.nf.stringFromNumber(slice.percent)?.stringByAppendingString("%"))!
             break
         case .Label :
             toRet = slice.label
