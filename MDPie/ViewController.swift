@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     
     
@@ -21,8 +22,13 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        slicesData = [Data(myValue: 50,myColor: "1ABC9C", myLabel:"Apple"), Data(myValue: 70,myColor: "9B59B6", myLabel:"Banana"), Data(myValue: 50,myColor: "F1C40F", myLabel:"Coconut"), Data(myValue: 40, myColor: "2ECC71", myLabel:"Strawberry"), Data(myValue: 40,myColor: "3498DB", myLabel:"Mango"), Data(myValue: 60,myColor: "E74C3C", myLabel:"Raspberry")]
+        slicesData = [
+            Data(myValue: 52.4, myColor: UIColor(red: 0.16, green: 0.73, blue: 0.61, alpha: 1), myLabel:"Apple"),
+            Data(myValue: 70.5, myColor: UIColor(red: 0.23, green: 0.6, blue: 0.85, alpha: 1), myLabel:"Banana"),
+            Data(myValue: 50, myColor: UIColor(red: 0.6, green: 0.36, blue: 0.71, alpha: 1), myLabel:"Coconut"),
+            Data(myValue: 60.1, myColor: UIColor(red: 0.46, green: 0.82, blue: 0.44, alpha: 1), myLabel:"Raspberry"),
+            Data(myValue: 40.9, myColor: UIColor(red: 0.94, green: 0.79, blue: 0.19, alpha: 1), myLabel:"Strawberry"),
+            Data(myValue: 40.7, myColor: UIColor(red: 0.89, green: 0.49, blue: 0.19, alpha: 1), myLabel:"Mango")]
         
         
         turn.delegate = self
@@ -38,9 +44,6 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         refreshBtn.setTitle("Refresh", forState: UIControlState.Normal)
         refreshBtn.addTarget(self, action: "refresh", forControlEvents: UIControlEvents.TouchUpInside)
         view.addSubview(refreshBtn)
-        
-        
-
     }
 
     func refresh()  {
@@ -52,30 +55,20 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         // Dispose of any resources that can be recreated.
     }
     
-    
-    
-    
-  
- 
-    
     func didOpenSliceAtIndex(index: Int) {
-        //println("Open slice at")
-        //println(index)
+        println("Open slice at \(index)")
     }
     
     func didCloseSliceAtIndex(index: Int) {
-        //println("Close slice at")
-        //println(index)
+        println("Close slice at \(index)")
     }
     
     func willOpenSliceAtIndex(index: Int) {
-        //println("Will open slice at")
-        //println(index)
+        println("Will open slice at \(index)")
     }
     
     func willCloseSliceAtIndex(index: Int) {
-        //println("Will close slice at")
-        //println(index)
+        println("Will close slice at \(index)")
     }
     
     func colorForSliceAtIndex(index:Int) -> UIColor {
@@ -94,13 +87,19 @@ class ViewController: UIViewController, TurnDelegate, TurnDataSource {
         return slicesData.count
     }
     
-    
-    
-    
-    
-    
-    
+
+}
 
 
+class Data {
+    var value:CGFloat
+    var color:UIColor = UIColor.grayColor()
+    var label:String = ""
+    
+    init(myValue:CGFloat, myColor:UIColor, myLabel:String) {
+        value = myValue
+        color = myColor
+        label = myLabel
+    }
 }
 

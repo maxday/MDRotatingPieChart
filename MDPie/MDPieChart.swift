@@ -18,12 +18,6 @@ protocol TurnDataSource {
     func numberOfSlices() -> Int
 }
 
-enum DisplayValueType {
-    case Percent
-    case Value
-    case Label
-}
-
 @objc protocol TurnDelegate {
     optional func willOpenSliceAtIndex(index:Int)
     optional func willCloseSliceAtIndex(index:Int)
@@ -45,7 +39,7 @@ struct TurnProperties {
     let percentBoxSizeHeight:CGFloat = 40
     let percentBoxSizeWidth:CGFloat = 150
     
-    let displayValueTypeInSlices:DisplayValueType = .Value
+    let displayValueTypeInSlices:DisplayValueType = .Percent
     let displayValueTypeCenter:DisplayValueType = .Label
     
     var nf = NSNumberFormatter()
@@ -487,3 +481,41 @@ class Turn: UIControl {
     
 
 }
+
+struct TrioPath {
+    var bezierPath:UIBezierPath
+    var animationBezierPath:UIBezierPath
+    var selectionBezierPath:UIBezierPath
+    
+    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath, mySelectionBezierPath:UIBezierPath) {
+        self.bezierPath = myBezierPath
+        self.animationBezierPath = myAnimationBezierPath
+        self.selectionBezierPath = mySelectionBezierPath
+    }
+}
+
+struct Slice {
+    var paths:TrioPath
+    var shapeLayer:CAShapeLayer
+    var angle:CGFloat
+    var label:String
+    var value:CGFloat
+    var labelObj:UILabel?
+    var percent:CGFloat
+    
+    init(myPaths:TrioPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat, myPercent:CGFloat) {
+        self.paths = myPaths
+        self.shapeLayer = myShapeLayer
+        self.angle = myAngle
+        self.label = myLabel
+        self.value = myValue
+        self.percent = myPercent
+    }
+}
+
+enum DisplayValueType {
+    case Percent
+    case Value
+    case Label
+}
+
