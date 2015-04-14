@@ -52,6 +52,7 @@ struct Properties {
 }
 
 class MDRotatingPieChart: UIControl {
+    
     var slicesArray:Array<Slice> = Array<Slice>()
     var delta:CGFloat = 0
     
@@ -73,8 +74,6 @@ class MDRotatingPieChart: UIControl {
 
     var pieChartCenter:CGPoint = CGPointZero
   
-    
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -97,13 +96,10 @@ class MDRotatingPieChart: UIControl {
         super.init(coder: coder)
     }
 
-    func build() {
-
-        if(datasource == nil) {
-            println("Did you forget to set your datasource ?")
-            return
-        }
-        
+    /**
+    Resets the pie chart
+    */
+    func reset() {
         self.transform = originalTransform
         
         labelCenter.transform = self.transform
@@ -113,6 +109,19 @@ class MDRotatingPieChart: UIControl {
             currentShape.shapeLayer.removeFromSuperlayer()
         }
         slicesArray.removeAll(keepCapacity: false)
+    }
+    
+    /**
+    Contructs the pie chart
+    */
+    func build() {
+
+        if(datasource == nil) {
+            println("Did you forget to set your datasource ?")
+            return
+        }
+        
+        reset()
         
         var total = computeTotal()
         
@@ -124,7 +133,14 @@ class MDRotatingPieChart: UIControl {
         }
     }
     
+    /**
+    Prepares the slice and adds it to the pie chart
     
+    :param: angleSum          sum of already prepared slices
+    :param: currentStartAngle start angle
+    :param: total             total value of the pie chart
+    :param: index             slice index
+    */
     func prepareSlice(inout angleSum:CGFloat, inout currentStartAngle:CGFloat, total:CGFloat, index:Int) {
     
         let currentValue  = datasource.valueForSliceAtIndex(index)
@@ -134,6 +150,7 @@ class MDRotatingPieChart: UIControl {
         
         //create slice
         let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
+        slicesArray.append(slice)
         
         //create label
         let label = createLabel(angleSum + slice.angle/2, slice: slice)
@@ -153,6 +170,13 @@ class MDRotatingPieChart: UIControl {
         }
     }
     
+    /**
+    Retrieves the middle point of a slice (to set the label)
+    
+    :param: angleSum sum of already prepared slices
+    
+    :returns: the middle point
+    */
     func getMiddlePoint(angleSum:CGFloat) -> CGPoint {
         
         let middleRadiusX = properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2
@@ -164,7 +188,14 @@ class MDRotatingPieChart: UIControl {
         )
     }
     
+    /**
+    Creates the label
     
+    :param: angleSum sum of already prepared slices
+    :param: slice    the slice
+    
+    :returns: a new label
+    */
     func createLabel(angleSum:CGFloat, slice:Slice) -> UILabel {
         let label = UILabel(frame: CGRectZero)
         
@@ -362,9 +393,13 @@ class MDRotatingPieChart: UIControl {
         return true;
     }
     
+    /**
+    Checks whether or not a tap shoud be dismissed (too close from the center or too far)
     
+    :param: currentPoint current tapped point
     
-    
+    :returns: true if it should be ignored, false otherwise
+    */
     func ignoreThisTap(currentPoint:CGPoint) -> Bool {
         let dx = currentPoint.x - pieChartCenter.x
         let dy = currentPoint.y - pieChartCenter.y
@@ -372,6 +407,18 @@ class MDRotatingPieChart: UIControl {
         return sqroot < properties.smallRadius || sqroot > (properties.bigRadius + properties.expand + (properties.bigRadius-properties.smallRadius)/2)
     }
     
+    /**
+    Creates a slice
+    
+    :param: start   start angle
+    :param: end     end angle
+    :param: color   color
+    :param: label   label
+    :param: value   value
+    :param: percent percent value
+    
+    :returns: a new slice
+    */
     func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String, value:CGFloat, percent:CGFloat) -> Slice {
         
         var mask = CAShapeLayer()
@@ -384,16 +431,8 @@ class MDRotatingPieChart: UIControl {
         mask.fillColor = color.CGColor
         
         var slice = Slice(myPaths: path, myShapeLayer: mask, myAngle: end-start, myLabel:label, myValue:value, myPercent:percent)
-        slicesArray.append(slice)
-        
-        
-        
-        
-        
-        
-        
+
         return slice;
-        
     }
     
     
@@ -427,62 +466,43 @@ class MDRotatingPieChart: UIControl {
         return toRet;
     }
 
+    /**
+    Draws a slice and return a triplet of UIBezierPaths
     
+    :param: start start angle
+    :param: end   end angle
+    
+    :returns: the triplet
+    */
     func drawSlice(start:CGFloat, end:CGFloat) -> TrioPath {
         
         var path = UIBezierPath()
         var selectionPath = UIBezierPath()
         var animationPath = UIBezierPath()
-        var pathToDetectMiddlePoint = UIBezierPath()
-        
-    
         
         path.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
-        
-        
- 
-        
-        
+
         selectionPath.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
         
-
         animationPath.moveToPoint(CGPointMake(pieChartCenter.x + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) *  cos(start), pieChartCenter.y + (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2) * sin(start)))
         
-
         path.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
         
         selectionPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
-        
-        
-  
-        
-        
-        
+
         animationPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
-        
-        
-        
-        
-        
+
         animationPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
-        
-      
-        
-        
+
         var path2 = UIBezierPath()
         path2.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y))
-        
         
         var path2Selection = UIBezierPath()
         path2Selection.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y))
         
-        
         path2.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius, startAngle: start, endAngle: end, clockwise: false)
         
-        
         path2Selection.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius+properties.expand, startAngle: start, endAngle: end, clockwise: false)
-        
-        
         
         path.addLineToPoint(path2.currentPoint)
         
@@ -493,17 +513,11 @@ class MDRotatingPieChart: UIControl {
         
         path.addLineToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
         
-        
-        
         selectionPath.addArcWithCenter(CGPointMake(pieChartCenter.x, pieChartCenter.y), radius: properties.bigRadius + properties.expand, startAngle: end, endAngle: start, clockwise: true)
         
-        
         selectionPath.addLineToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
-        
-        
 
         return TrioPath(myBezierPath: path, myAnimationBezierPath: animationPath, mySelectionBezierPath: selectionPath)
-        
     }
     
     
