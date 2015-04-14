@@ -435,7 +435,7 @@ class MDRotatingPieChart: UIControl {
         var mask = CAShapeLayer()
         
         mask.frame = self.frame
-        let path = computeTrioPath(start, end: end)
+        let path = computeDualPath(start, end: end)
         mask.path = path.animationBezierPath.CGPath
         mask.lineWidth = properties.bigRadius - properties.smallRadius
         mask.strokeColor = color.CGColor
@@ -479,37 +479,6 @@ class MDRotatingPieChart: UIControl {
     
     
     
-    func computePath(start:CGFloat, end:CGFloat, isSelection:Bool) -> UIBezierPath {
-    
-        var path = UIBezierPath()
-        
-        let startPointX = pieChartCenter.x + properties.smallRadius * cos(start)
-        let startPointY = pieChartCenter.y + properties.smallRadius * sin(start)
-        
-        let startPoint = CGPointMake(startPointX, startPointY)
-        
-        var delta = (isSelection) ? properties.expand : 0
-        
-        path.moveToPoint(startPoint)
-        
-        path.addArcWithCenter(pieChartCenter, radius: properties.smallRadius, startAngle: start, endAngle: end, clockwise: false)
-        
-        
-        var helperPath = UIBezierPath()
-        helperPath.moveToPoint(CGPointMake(startPointX, pieChartCenter.y))
-        
-        helperPath.addArcWithCenter(pieChartCenter, radius: (properties.bigRadius + delta), startAngle: start, endAngle: end, clockwise: false)
-        
-        path.addLineToPoint(helperPath.currentPoint)
-        
-        path.addArcWithCenter(pieChartCenter, radius: (properties.bigRadius + delta), startAngle: end, endAngle: start, clockwise: true)
-        
-        path.addLineToPoint(startPoint)
-        
-        
-        
-        return path;
-    }
     
     func computeAnimationPath(start:CGFloat, end:CGFloat) -> UIBezierPath {
         var animationPath = UIBezierPath()
@@ -519,10 +488,7 @@ class MDRotatingPieChart: UIControl {
         animationPath.addArcWithCenter(pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
         
         animationPath.addArcWithCenter(pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
-        
-        
-        
-        
+
         return animationPath;
     }
 
@@ -534,20 +500,15 @@ class MDRotatingPieChart: UIControl {
     
     :returns: the triplet
     */
-    func computeTrioPath(start:CGFloat, end:CGFloat) -> TrioPath {
-        
+    func computeDualPath(start:CGFloat, end:CGFloat) -> DualPath {
         
         let pathRef = computeAnimationPath(start, end: end)
         
-        
         let other = CGPathCreateCopyByStrokingPath(pathRef.CGPath, nil, properties.bigRadius-properties.smallRadius, kCGLineCapButt, kCGLineJoinMiter, 1)
         
-        let other2 = CGPathCreateCopyByStrokingPath(pathRef.CGPath, nil, 30, kCGLineCapButt, kCGLineJoinMiter, 1)
-        
         let ok = UIBezierPath(CGPath: other)
-        let ok2 = UIBezierPath(CGPath: other2)
-        
-        return TrioPath(myBezierPath: ok, myAnimationBezierPath: pathRef, mySelectionBezierPath: ok2)
+      
+        return DualPath(myBezierPath: ok, myAnimationBezierPath: pathRef)
     }
     
     
@@ -592,20 +553,18 @@ class MDRotatingPieChart: UIControl {
 
 }
 
-struct TrioPath {
+struct DualPath {
     var bezierPath:UIBezierPath
     var animationBezierPath:UIBezierPath
-    var selectionBezierPath:UIBezierPath
     
-    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath, mySelectionBezierPath:UIBezierPath) {
+    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath) {
         self.bezierPath = myBezierPath
         self.animationBezierPath = myAnimationBezierPath
-        self.selectionBezierPath = mySelectionBezierPath
     }
 }
 
 struct Slice {
-    var paths:TrioPath
+    var paths:DualPath
     var shapeLayer:CAShapeLayer
     var angle:CGFloat
     var label:String
@@ -613,7 +572,7 @@ struct Slice {
     var labelObj:UILabel?
     var percent:CGFloat
     
-    init(myPaths:TrioPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat, myPercent:CGFloat) {
+    init(myPaths:DualPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat, myPercent:CGFloat) {
         self.paths = myPaths
         self.shapeLayer = myShapeLayer
         self.angle = myAngle
