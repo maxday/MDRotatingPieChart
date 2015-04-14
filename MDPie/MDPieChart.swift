@@ -33,14 +33,11 @@ struct Properties {
     var bigRadius:CGFloat = 280
     var expand:CGFloat = 50
     
-   // var percentBoxSizeHeight:CGFloat = 40
-   // var percentBoxSizeWidth:CGFloat = 150
-    
     var displayValueTypeInSlices:DisplayValueType = .Percent
     var displayValueTypeCenter:DisplayValueType = .Label
 
-    var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 12)!
-    var fontTextCenter:UIFont = UIFont(name: "Arial", size: 12)!
+    var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 10)!
+    var fontTextCenter:UIFont = UIFont(name: "Arial", size: 10)!
     
     var nf = NSNumberFormatter()
     
@@ -109,21 +106,16 @@ class Turn: UIControl {
    
     
     func build() {
-        println("prop \(pieChartCenter)")
+
         if(datasource == nil) {
             println("Did you forget to set your datasource ?")
             return
         }
         
-  
-        
         self.transform = copyTransform
         
         labelCenter.transform = self.transform
         labelCenter.text = ""
-        
-        labelCenter.text = "OK"
-        repositionLabel(labelCenter)
         
         var currentShape:CAShapeLayer
         for currentShape in slicesArray {
@@ -251,7 +243,6 @@ class Turn: UIControl {
         
         if(openedSlice == slicesArray[cpt].shapeLayer) {
             openedSlice = nil
-            println("nil")
             return
         }
         
@@ -306,7 +297,6 @@ class Turn: UIControl {
         
         
         if(hasBeenDraged) {
-            println("return")
             return
         }
         
@@ -320,9 +310,6 @@ class Turn: UIControl {
         
         
         let currentPointTranslated = CGPointMake(currentPoint.x - transX, currentPoint.y - transY)
-        
-        println(currentPoint)
-        println(currentPointTranslated)
        
         var cpt = 0
         for currentPath in slicesArray {
@@ -349,8 +336,8 @@ class Turn: UIControl {
         
         
         
-        let deltaX = currentPoint.x - self.frame.width/2
-        let deltaY = currentPoint.y - self.frame.height/2
+        let deltaX = currentPoint.x - pieChartCenter.x
+        let deltaY = currentPoint.y - pieChartCenter.y
 
         delta = atan2(deltaY,deltaX)
  
@@ -366,8 +353,8 @@ class Turn: UIControl {
 
         
         
-        let deltaX = currentPoint.x - self.frame.width/2
-        let deltaY = currentPoint.y - self.frame.height/2
+        let deltaX = currentPoint.x - pieChartCenter.x
+        let deltaY = currentPoint.y - pieChartCenter.y
         
         let ang = atan2(deltaY,deltaX);
         let angleDifference = delta - ang
@@ -461,7 +448,7 @@ class Turn: UIControl {
         path.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))
         
         
-        println(path.currentPoint)
+ 
         
         
         selectionPath.moveToPoint(CGPointMake(pieChartCenter.x + properties.smallRadius *  cos(start), pieChartCenter.y + properties.smallRadius * sin(start)))

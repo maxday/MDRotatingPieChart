@@ -10,9 +10,9 @@
 		58B195A01ACDDD6F0015F481 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B1959F1ACDDD6F0015F481 /* AppDelegate.swift */; };
 		58B195A21ACDDD6F0015F481 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B195A11ACDDD6F0015F481 /* ViewController.swift */; };
 		58B195A71ACDDD6F0015F481 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58B195A61ACDDD6F0015F481 /* Images.xcassets */; };
-		58B195AA1ACDDD6F0015F481 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58B195A81ACDDD6F0015F481 /* LaunchScreen.xib */; };
 		58B195B61ACDDD700015F481 /* MDPieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B195B51ACDDD700015F481 /* MDPieTests.swift */; };
 		58B195C01ACDFA8A0015F481 /* MDPieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B195BF1ACDFA8A0015F481 /* MDPieChart.swift */; };
+		58FCC36F1ADD6E8F00AC64DE /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58FCC36E1ADD6E8F00AC64DE /* LaunchScreen.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,11 +31,11 @@
 		58B1959F1ACDDD6F0015F481 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		58B195A11ACDDD6F0015F481 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		58B195A61ACDDD6F0015F481 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		58B195A91ACDDD6F0015F481 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		58B195AF1ACDDD700015F481 /* MDPieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDPieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B195B41ACDDD700015F481 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58B195B51ACDDD700015F481 /* MDPieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDPieTests.swift; sourceTree = "<group>"; };
 		58B195BF1ACDFA8A0015F481 /* MDPieChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDPieChart.swift; sourceTree = "<group>"; };
+		58FCC36E1ADD6E8F00AC64DE /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,10 +77,10 @@
 		58B1959C1ACDDD6F0015F481 /* MDPie */ = {
 			isa = PBXGroup;
 			children = (
+				58FCC36E1ADD6E8F00AC64DE /* LaunchScreen.xib */,
 				58B1959F1ACDDD6F0015F481 /* AppDelegate.swift */,
 				58B195A11ACDDD6F0015F481 /* ViewController.swift */,
 				58B195A61ACDDD6F0015F481 /* Images.xcassets */,
-				58B195A81ACDDD6F0015F481 /* LaunchScreen.xib */,
 				58B1959D1ACDDD6F0015F481 /* Supporting Files */,
 				58B195BF1ACDFA8A0015F481 /* MDPieChart.swift */,
 			);
@@ -193,7 +193,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58B195AA1ACDDD6F0015F481 /* LaunchScreen.xib in Resources */,
+				58FCC36F1ADD6E8F00AC64DE /* LaunchScreen.xib in Resources */,
 				58B195A71ACDDD6F0015F481 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -235,17 +235,6 @@
 			targetProxy = 58B195B01ACDDD700015F481 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		58B195A81ACDDD6F0015F481 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				58B195A91ACDDD6F0015F481 /* Base */,
-			);
-			name = LaunchScreen.xib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		58B195B71ACDDD700015F481 /* Debug */ = {
@@ -336,7 +325,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -351,7 +340,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
