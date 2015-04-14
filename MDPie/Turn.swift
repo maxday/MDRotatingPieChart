@@ -20,6 +20,12 @@ protocol TurnDataSource {
 
 }
 
+enum DisplayValueType {
+    case Percent
+    case Value
+    case Label
+}
+
 @objc protocol TurnDelegate {
     
     optional func willOpenSliceAtIndex(index:Int)
@@ -34,13 +40,16 @@ struct TurnProperties {
     
     let smallRadius:CGFloat = 120
     let bigRadius:CGFloat = 280
-    let expand:CGFloat = 50
+    let expand:CGFloat = 90
     
     let centerX:CGFloat = 350
     let centerY:CGFloat = 350
     
     let percentBoxSizeHeight:CGFloat = 40
     let percentBoxSizeWidth:CGFloat = 150
+    
+    let displayValueTypeInSlices:DisplayValueType = .Value
+    let displayValueTypeCenter:DisplayValueType = .Percent
 
 
 }
@@ -71,7 +80,7 @@ class Turn: UIControl {
     var copyTransform:CGAffineTransform!
     
     var angleSum:CGFloat = -1
-   
+    var nf:NSNumberFormatter = NSNumberFormatter()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -83,6 +92,12 @@ class Turn: UIControl {
         labelCenter.textColor = UIColor.blackColor()
         labelCenter.textAlignment = NSTextAlignment.Center
         addSubview(labelCenter)
+        
+        
+        nf.groupingSize = 3
+        nf.maximumSignificantDigits = 3
+        nf.minimumSignificantDigits = 3
+
         
     }
     
@@ -116,7 +131,7 @@ class Turn: UIControl {
         var currentStartAngle:CGFloat = 0
         var currentColor:UIColor = UIColor.grayColor()
         var currentLabel:String
-        
+        var currentValue:CGFloat
         
         
         
@@ -131,11 +146,11 @@ class Turn: UIControl {
         angleSum = 0
         
         for (index = 0; index < datasource?.numberOfSlices(); ++index) {
-            
-            currentAngle = datasource.valueForSliceAtIndex(index) * 2 * CGFloat(M_PI) / total
+            currentValue  = datasource.valueForSliceAtIndex(index)
+            currentAngle = currentValue * 2 * CGFloat(M_PI) / total
             currentColor = datasource.colorForSliceAtIndex(index)
             currentLabel = datasource.labelForSliceAtIndex(index)
-            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:100 * datasource.valueForSliceAtIndex(index)/total)
+            let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
             
             
             angleSum += slice.angle/2
@@ -148,13 +163,9 @@ class Turn: UIControl {
             
             
             label.textAlignment = NSTextAlignment.Center
-            
-            
-            
-            
-            label.text = slicesArray[index].label
-            
             label.textColor = UIColor.blackColor()
+            
+            label.text = formatFromDisplayValueType(slice, displayType: properties.displayValueTypeInSlices)
             
             slicesArray[index].labelObj = label
             slicesArray[index].shapeLayer.addSublayer(label.layer)
@@ -228,10 +239,6 @@ class Turn: UIControl {
         
         oldTransform = openedSlice?.transform
         
-        var nf:NSNumberFormatter = NSNumberFormatter()
-        nf.groupingSize = 3
-        nf.maximumSignificantDigits = 3
-        nf.minimumSignificantDigits = 3
         
         labelCenter.text = nf.stringFromNumber(slicesArray[cpt].value)?.stringByAppendingString("%")
         
@@ -360,7 +367,7 @@ class Turn: UIControl {
         return sqroot < properties.smallRadius || sqroot > (properties.bigRadius + properties.expand + (properties.bigRadius-properties.smallRadius)/2)
     }
     
-    func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String, value:CGFloat) -> Slice {
+    func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String, value:CGFloat, percent:CGFloat) -> Slice {
         
         var mask = CAShapeLayer()
         
@@ -371,7 +378,7 @@ class Turn: UIControl {
         mask.strokeColor = color.CGColor
         mask.fillColor = color.CGColor
         
-        var slice = Slice(myPaths: path, myShapeLayer: mask, myAngle: end-start, myLabel:label, myValue:value)
+        var slice = Slice(myPaths: path, myShapeLayer: mask, myAngle: end-start, myLabel:label, myValue:value, myPercent:percent)
         slicesArray.append(slice)
         
         
@@ -382,6 +389,28 @@ class Turn: UIControl {
         
         return slice;
         
+    }
+    
+    func formatFromDisplayValueType(slice:Slice, displayType:DisplayValueType) -> String {
+    
+        var toRet = ""
+        
+        switch(properties.displayValueTypeInSlices) {
+        case .Value :
+            toRet = nf.stringFromNumber(slice.value)!
+            break
+        case .Percent :
+            toRet = (nf.stringFromNumber(slice.percent)?.stringByAppendingString("%"))!
+            break
+        case .Label :
+            toRet = slice.label
+            break
+        default :
+            toRet = slice.label
+            break
+        }
+
+        return toRet;
     }
 
     

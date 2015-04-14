@@ -31,13 +31,15 @@ struct Slice {
     var label:String
     var value:CGFloat
     var labelObj:UILabel?
+    var percent:CGFloat
     
-    init(myPaths:TrioPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat) {
+    init(myPaths:TrioPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat, myPercent:CGFloat) {
         self.paths = myPaths
         self.shapeLayer = myShapeLayer
         self.angle = myAngle
         self.label = myLabel
         self.value = myValue
+        self.percent = myPercent
     }
 }
 
