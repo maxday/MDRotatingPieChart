@@ -142,7 +142,15 @@ class MDRotatingPieChart: UIControl {
   
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        setup()
+    }
+    
+    required init(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+    
+    private func setup() {
         //saves the center (since the frame will change after some rotations)
         pieChartCenter.x = frame.width/2
         pieChartCenter.y = frame.height/2
@@ -153,10 +161,6 @@ class MDRotatingPieChart: UIControl {
         labelCenter.textColor = UIColor.blackColor()
         labelCenter.textAlignment = NSTextAlignment.Center
         addSubview(labelCenter)
-    }
-    
-    required init(coder: NSCoder) {
-        super.init(coder: coder)
     }
 
     /**
