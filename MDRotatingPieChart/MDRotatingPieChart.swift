@@ -485,7 +485,7 @@ class MDRotatingPieChart: UIControl {
         
         var mask = CAShapeLayer()
         
-        mask.frame = self.frame
+        mask.frame = bounds
         let path = computeDualPath(start, end: end)
         mask.path = path.animationBezierPath.CGPath
         mask.lineWidth = properties.bigRadius - properties.smallRadius
