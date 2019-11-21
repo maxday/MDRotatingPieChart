@@ -38,15 +38,15 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         Here you can dig into some properties
         -------------------------------------
         */
-        var properties = Properties()
+        var properties = MDRotatingPieChart.Properties()
 
         properties.smallRadius = 50
         properties.bigRadius = 120
         properties.expand = 25
     
         
-        properties.displayValueTypeInSlices = .percent
-        properties.displayValueTypeCenter = .label
+        properties.displayValueTypeInSlices = .Percent
+        properties.displayValueTypeCenter = .Label
         
         properties.fontTextInSlices = UIFont(name: "Arial", size: 12)!
         properties.fontTextCenter = UIFont(name: "Arial", size: 10)!
@@ -73,41 +73,41 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         view.addSubview(title)
         
         let refreshBtn = UIButton(frame: CGRect(x: (view.frame.width-200)/2, y: view.frame.width+100, width: 200, height: 50))
-        refreshBtn.setTitleColor(UIColor.white, for: UIControlState())
-        refreshBtn.setTitle("Refresh", for: UIControlState())
-        refreshBtn.addTarget(self, action: #selector(ViewController.refresh), for: UIControlEvents.touchUpInside)
+        refreshBtn.setTitleColor(UIColor.white, for: UIControl.State())
+        refreshBtn.setTitle("Refresh", for: UIControl.State())
+        refreshBtn.addTarget(self, action: #selector(ViewController.refresh), for: UIControl.Event.touchUpInside)
         refreshBtn.backgroundColor = UIColor.lightGray
         view.addSubview(refreshBtn)
     }
     
     //Delegate
     //some sample messages when actions are triggered (open/close slices)
-    func didOpenSliceAtIndex(_ index: Int) {
+    func didOpenSliceAtIndex(index: Int) {
         print("Open slice at \(index)")
     }
     
-    func didCloseSliceAtIndex(_ index: Int) {
+    func didCloseSliceAtIndex(index: Int) {
         print("Close slice at \(index)")
     }
     
-    func willOpenSliceAtIndex(_ index: Int) {
+    func willOpenSliceAtIndex(index: Int) {
         print("Will open slice at \(index)")
     }
     
-    func willCloseSliceAtIndex(_ index: Int) {
+    func willCloseSliceAtIndex(index: Int) {
         print("Will close slice at \(index)")
     }
     
     //Datasource
-    func colorForSliceAtIndex(_ index:Int) -> UIColor {
+    func colorForSliceAtIndex(index:Int) -> UIColor {
         return slicesData[index].color
     }
     
-    func valueForSliceAtIndex(_ index:Int) -> CGFloat {
+    func valueForSliceAtIndex(index:Int) -> CGFloat {
         return slicesData[index].value
     }
     
-    func labelForSliceAtIndex(_ index:Int) -> String {
+    func labelForSliceAtIndex(index:Int) -> String {
         return slicesData[index].label
     }
     
@@ -120,7 +120,7 @@ class ViewController: UIViewController, MDRotatingPieChartDelegate, MDRotatingPi
         refresh()
     }
     
-    func refresh()  {
+    @objc func refresh()  {
         pieChart.build()
     }
     
