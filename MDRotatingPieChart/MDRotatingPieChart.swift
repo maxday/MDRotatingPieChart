@@ -4,10 +4,11 @@
 //
 //  Created by Maxime DAVID on 2015-04-03.
 //  Copyright (c) 2015 Maxime DAVID. All rights reserved.
-//
+//  Updated to Swift 5 2010 Oggerschummer
 
 import UIKit
 import QuartzCore
+import CoreGraphics
 
 /**
 *  DataSource : all methods are mandatory to build the pie chart
@@ -46,70 +47,129 @@ protocol MDRotatingPieChartDataSource {
 /**
 *  Delegate : all methods are optional
 */
-@objc protocol MDRotatingPieChartDelegate {
+protocol MDRotatingPieChartDelegate {
     
     /**
     Triggered when a slice is going to be opened
     :param: index slice index in your data array
     */
-    optional func willOpenSliceAtIndex(index:Int)
+    func willOpenSlice(index:Int)
     
     /**
     Triggered when a slice is going to be closed
     :param: index slice index in your data array
     */
-    optional func willCloseSliceAtIndex(index:Int)
+    func willCloseSlice(index:Int)
     
     /**
     Triggered when a slice has just finished opening
     :param: index slice index in your data array
     */
-    optional func didOpenSliceAtIndex(index:Int)
+    func didOpenSlice(index:Int)
     
     /**
     Triggered when a slice has just finished closing
     :param: index slice index in your data array
     */
-    optional func didCloseSliceAtIndex(index:Int)
+    func didCloseSlice(index:Int)
+}
+
+extension MDRotatingPieChartDelegate {
+    
+    //To allow methods to be optional in swift
+    func willOpenSlice(index:Int){}
+    func willCloseSlice(index:Int){}
+    func didOpenSlice(index:Int){}
+    func didCloseSlice(index:Int){}
 }
 
 /**
 *  Properties, to customize your pie chart (actually this is not mandatory to use this structure since all values have a default behaviour)
 */
-struct Properties {
-    //smallest of both radius
-    var smallRadius:CGFloat = 50
-    //biggest of both radius
-    var bigRadius:CGFloat = 120
-    //value of the translation when a slice is openned
-    var expand:CGFloat = 25
-    
-    //label format in slices
-    var displayValueTypeInSlices:DisplayValueType = .Percent
-    //label format in center
-    var displayValueTypeCenter:DisplayValueType = .Label
 
-    //font to use in slices
-    var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 12)!
-    //font to use in the center
-    var fontTextCenter:UIFont = UIFont(name: "Arial", size: 10)!
+ class MDRotatingPieChart: UIControl {
     
-    //tells whether or not the pie should be animated
-    var enableAnimation = true
-    //if so, this describes the duration of the animation
-    var animationDuration:CFTimeInterval = 0.5
     
-    //number formatter to use
-    var nf = NSNumberFormatter()
-    
-    init() {
-        nf.groupingSize = 3
-        nf.maximumSignificantDigits = 3
-        nf.minimumSignificantDigits = 3
+    struct Properties {
+        //smallest of both radius
+        var smallRadius:CGFloat = 50
+        //biggest of both radius
+        var bigRadius:CGFloat = 120
+        //value of the translation when a slice is openned
+        var expand:CGFloat = 25
+        
+        //label format in slices
+        var displayValueTypeInSlices:DisplayValueType = .Percent
+        //label format in center
+        var displayValueTypeCenter:DisplayValueType = .Label
+
+        //font to use in slices
+        var fontTextInSlices:UIFont = UIFont(name: "Arial", size: 12)!
+        //font to use in the center
+        var fontTextCenter:UIFont = UIFont(name: "Arial", size: 10)!
+        
+        //tells whether or not the pie should be animated
+        var enableAnimation = true
+        //if so, this describes the duration of the animation
+        var animationDuration:CFTimeInterval = 0.5
+        
+        //number formatter to use
+        var nf = NumberFormatter()
+        
+        init() {
+            nf.groupingSize = 3
+            nf.maximumSignificantDigits = 3
+            nf.minimumSignificantDigits = 3
+        }
     }
-}
+    /**
+    *  Stores both BezierPaths, one for the animation and the "real one"
+    */
+    struct DualPath {
+        var bezierPath:UIBezierPath
+        var animationBezierPath:UIBezierPath
+        
+        init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath) {
+            self.bezierPath = myBezierPath
+            self.animationBezierPath = myAnimationBezierPath
+        }
+    }
 
-class MDRotatingPieChart: UIControl {
+    /**
+    *  Stores a slice
+    */
+    struct Slice {
+        var paths:DualPath
+        var shapeLayer:CAShapeLayer
+        var angle:CGFloat
+        var label:String
+        var value:CGFloat
+        var labelObj:UILabel?
+        var percent:CGFloat
+        
+        init(myPaths:DualPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat, myPercent:CGFloat) {
+            self.paths = myPaths
+            self.shapeLayer = myShapeLayer
+            self.angle = myAngle
+            self.label = myLabel
+            self.value = myValue
+            self.percent = myPercent
+        }
+    }
+
+    /**
+    Helper enum to format the labels
+
+    - Percent: the percent value
+    - Value:   the raw value
+    - Label:   the description
+    */
+    enum DisplayValueType {
+        case Percent
+        case Value
+        case Label
+    }
+    
     
     //stores the slices
     var slicesArray:Array<Slice> = Array<Slice>()
@@ -135,17 +195,17 @@ class MDRotatingPieChart: UIControl {
     var labelCenter:UILabel = UILabel()
 
     //saves the center of the pie chart
-    var pieChartCenter:CGPoint = CGPointZero
+    var pieChartCenter:CGPoint = CGPoint(x:0,y:0)
     
     //current slice translation
-    var currentTr:CGPoint = CGPointZero
+    var currentTr:CGPoint = CGPoint(x:0,y:0)
   
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
     }
     
-    required init(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         super.init(coder: coder)
         setup()
     }
@@ -156,10 +216,10 @@ class MDRotatingPieChart: UIControl {
         pieChartCenter.y = frame.height/2
         
         //builds and adds the centered label
-        labelCenter.frame = CGRectZero
-        labelCenter.center = CGPointMake(pieChartCenter.x, pieChartCenter.y)
-        labelCenter.textColor = UIColor.blackColor()
-        labelCenter.textAlignment = NSTextAlignment.Center
+        labelCenter.frame = CGRect(x: 0, y: 0, width: 0, height: 0  )
+        labelCenter.center = CGPoint(x:pieChartCenter.x, y:pieChartCenter.y)
+        labelCenter.textColor = UIColor.black
+        labelCenter.textAlignment = NSTextAlignment.center
         addSubview(labelCenter)
     }
 
@@ -167,7 +227,7 @@ class MDRotatingPieChart: UIControl {
     Resets the pie chart
     */
     func reset() {
-        self.transform = CGAffineTransformMake(1, 0, 0, 1, 0, 0)
+        self.transform = CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0)
         
         labelCenter.transform = self.transform
         labelCenter.text = ""
@@ -175,7 +235,7 @@ class MDRotatingPieChart: UIControl {
         for currentShape in slicesArray {
             currentShape.shapeLayer.removeFromSuperlayer()
         }
-        slicesArray.removeAll(keepCapacity: false)
+        slicesArray.removeAll(keepingCapacity: false)
     }
     
     /**
@@ -184,19 +244,20 @@ class MDRotatingPieChart: UIControl {
     func build() {
 
         if(datasource == nil) {
-            println("Did you forget to set your datasource ?")
+            print("Did you forget to set your datasource ?")
             return
         }
         
         reset()
         
-        var total = computeTotal()
-        
+        let total = computeTotal()
+        if total == 0 { return} //No values, no slices
         var currentStartAngle:CGFloat = 0
         var angleSum:CGFloat = 0
-        
-        for (var index = 0; index < datasource?.numberOfSlices(); ++index) {
-            prepareSlice(&angleSum, currentStartAngle: &currentStartAngle, total: total, index: index)
+        var index = 0
+        while index < (datasource?.numberOfSlices())! {
+            prepareSlice(angleSum: &angleSum, currentStartAngle: &currentStartAngle, total: total, index: index)
+            index+=1
         }
     }
     
@@ -207,19 +268,19 @@ class MDRotatingPieChart: UIControl {
     :param: total             total value of the pie chart
     :param: index             slice index
     */
-    func prepareSlice(inout angleSum:CGFloat, inout currentStartAngle:CGFloat, total:CGFloat, index:Int) {
+    func prepareSlice( angleSum:inout CGFloat, currentStartAngle:inout CGFloat, total:CGFloat, index:Int) {
     
-        let currentValue  = datasource.valueForSliceAtIndex(index)
-        let currentAngle = currentValue * 2 * CGFloat(M_PI) / total
-        let currentColor = datasource.colorForSliceAtIndex(index)
-        let currentLabel = datasource.labelForSliceAtIndex(index)
+        let currentValue  = datasource.valueForSliceAtIndex(index: index)
+        let currentAngle = currentValue * 2 * CGFloat(Double.pi) / total
+        let currentColor = datasource.colorForSliceAtIndex(index: index)
+        let currentLabel = datasource.labelForSliceAtIndex(index: index)
         
         //create slice
-        let slice = createSlice(currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
+        let slice = createSlice(start: currentStartAngle, end: CGFloat(currentStartAngle - currentAngle), color:currentColor, label:currentLabel, value:currentValue, percent:100 * currentValue/total)
         slicesArray.append(slice)
         
         //create label
-        let label = createLabel(angleSum + slice.angle/2, slice: slice)
+        let label = createLabel(angleSum: angleSum + slice.angle/2, slice: slice)
         
         //populate slicesArray
         slicesArray[index].labelObj = label
@@ -227,12 +288,12 @@ class MDRotatingPieChart: UIControl {
         
         angleSum += slice.angle
         
-        self.layer.insertSublayer(slice.shapeLayer, atIndex:0)
+        self.layer.insertSublayer(slice.shapeLayer, at:0)
         
         currentStartAngle -= currentAngle
         
         if(properties.enableAnimation) {
-            addAnimation(slice)
+            addAnimation(slice: slice)
         }
     }
     
@@ -246,9 +307,9 @@ class MDRotatingPieChart: UIControl {
         let middleRadiusX = properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2
         let middleRadiusY = properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2
         
-        return CGPointMake(
-            cos(angleSum) * middleRadiusX + pieChartCenter.x,
-            sin(angleSum) * middleRadiusY + pieChartCenter.y
+        return CGPoint(
+            x: cos(angleSum) * middleRadiusX + pieChartCenter.x,
+            y: sin(angleSum) * middleRadiusY + pieChartCenter.y
         )
     }
     
@@ -259,20 +320,20 @@ class MDRotatingPieChart: UIControl {
     :returns: a new label
     */
     func createLabel(angleSum:CGFloat, slice:Slice) -> UILabel {
-        let label = UILabel(frame: CGRectZero)
+        let label = UILabel(frame: CGRect(x: 0,y: 0,width: 0,height: 0))
         
-        label.center = getMiddlePoint(angleSum)
+        label.center = getMiddlePoint(angleSum: angleSum)
         
-        label.textAlignment = NSTextAlignment.Center
-        label.textColor = UIColor.blackColor()
+        label.textAlignment = NSTextAlignment.center
+        label.textColor = UIColor.black
         label.font = properties.fontTextInSlices
         
-        label.text = formatFromDisplayValueType(slice, displayType: properties.displayValueTypeInSlices)
+        label.text = formatFromDisplayValueType(slice: slice, displayType: properties.displayValueTypeInSlices)
         
         let tmpCenter = label.center
         label.sizeToFit()
         label.center = tmpCenter
-        label.hidden = !frameFitInPath(label.frame, path: slice.paths.bezierPath, inside:true)
+        label.isHidden = !frameFitInPath(frame: label.frame, path: slice.paths.bezierPath, inside:true)
         return label;
     }
     
@@ -288,7 +349,7 @@ class MDRotatingPieChart: UIControl {
         animateStrokeEnd.fromValue = 0.0
         animateStrokeEnd.toValue = 1.0
         
-        slice.shapeLayer.addAnimation(animateStrokeEnd, forKey: "animate stroke end animation")
+        slice.shapeLayer.add(animateStrokeEnd, forKey: "animate stroke end animation")
         CATransaction.commit()
     }
     
@@ -298,8 +359,10 @@ class MDRotatingPieChart: UIControl {
     */
     func computeTotal() -> CGFloat {
         var total:CGFloat = 0
-        for (var index=0; index < datasource.numberOfSlices(); ++index) {
-            total = total + datasource.valueForSliceAtIndex(index)
+        var index = 0
+        while index < (datasource?.numberOfSlices())! {
+            total = total + datasource.valueForSliceAtIndex(index: index)
+            index+=1
         }
         return total;
     }
@@ -308,9 +371,9 @@ class MDRotatingPieChart: UIControl {
     Closes a slice
     */
     func closeSlice() {
-        delegate?.willCloseSliceAtIndex!(currentSelected)
+        delegate?.willCloseSlice(index: currentSelected)
         slicesArray[currentSelected].shapeLayer.transform = oldTransform!
-        delegate?.didCloseSliceAtIndex!(currentSelected)
+        delegate?.didCloseSlice(index: currentSelected)
         labelCenter.text = ""
     }
     
@@ -325,25 +388,28 @@ class MDRotatingPieChart: UIControl {
         oldTransform = slicesArray[index].shapeLayer.transform
         
         //update the label
-        labelCenter.text = formatFromDisplayValueType(slicesArray[index], displayType: properties.displayValueTypeCenter)
+        labelCenter.text = formatFromDisplayValueType(slice: slicesArray[index], displayType: properties.displayValueTypeCenter)
         let centerTmp = labelCenter.center
         labelCenter.sizeToFit()
         labelCenter.center = centerTmp
         
-        labelCenter.hidden = false
+        labelCenter.isHidden = false
         var cpt = 0;
-        for (; cpt < datasource?.numberOfSlices(); ++cpt) {
-            if(!frameFitInPath(labelCenter.frame, path: slicesArray[cpt].paths.bezierPath, inside:false)) {
-                labelCenter.hidden = true
+        while (cpt < (datasource?.numberOfSlices())!) {
+            if(!frameFitInPath(frame: labelCenter.frame, path: slicesArray[cpt].paths.bezierPath, inside:false)) {
+                labelCenter.isHidden = true
                 break;
             }
+            cpt+=1
         }
         
         //move
         var i=0
         var angleSum:CGFloat = 0
-        for(i=0; i<index; ++i) {
+        
+        while( i<index) {
             angleSum += slicesArray[i].angle
+            i+=1
         }
         angleSum += slicesArray[index].angle/2.0
         
@@ -351,12 +417,12 @@ class MDRotatingPieChart: UIControl {
         let transY:CGFloat = properties.expand*sin(angleSum)
         
         let translate = CATransform3DMakeTranslation(transX, transY, 0);
-        currentTr = CGPointMake(-transX, -transY)
+        currentTr = CGPoint(x: -transX, y: -transY)
         
-        delegate?.willOpenSliceAtIndex!(index)
+        delegate?.willOpenSlice(index: index)
         slicesArray[index].shapeLayer.transform = translate
         
-        delegate?.didOpenSliceAtIndex!(index)
+        delegate?.didOpenSlice(index: index)
         
         currentSelected = index
     }
@@ -368,7 +434,7 @@ class MDRotatingPieChart: UIControl {
     func openCloseSlice(index:Int)  {
         // nothing is opened, let's opened one slice
         if(currentSelected == -1)  {
-            openSlice(index)
+            openSlice(index: index)
 
         }
         // here a slice is opened, so let's close it before
@@ -379,7 +445,7 @@ class MDRotatingPieChart: UIControl {
                 currentSelected = -1
             }
             else {
-                openSlice(index)
+                openSlice(index: index)
             }
             
         }
@@ -387,13 +453,14 @@ class MDRotatingPieChart: UIControl {
     
     
     //UIControl implementation
-    override func beginTrackingWithTouch(touch: UITouch, withEvent event: UIEvent) -> Bool {
+    override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+    
         //makes sure to reset the drag event
         hasBeenDraged = false
 
-        let currentPoint = touch.locationInView(self)
+        let currentPoint = touch.location(in: self)
       
-        if ignoreThisTap(currentPoint) {
+        if ignoreThisTap(currentPoint: currentPoint) {
             return false;
         }
         
@@ -405,10 +472,13 @@ class MDRotatingPieChart: UIControl {
     }
     
     //UIControl implementation
-    override func continueTrackingWithTouch(touch: UITouch, withEvent event: UIEvent) -> Bool {
+    
+    override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         //drag event detected, we won't open/close any slices
-        hasBeenDraged = true
-        let currentPoint = touch.locationInView(self)
+        if (touch.location(in: touch.view) != touch.previousLocation(in: touch.view) ){
+            hasBeenDraged = true
+        }
+        let currentPoint = touch.location(in: self)
         
         let deltaX = currentPoint.x - pieChartCenter.x
         let deltaY = currentPoint.y - pieChartCenter.y
@@ -417,7 +487,7 @@ class MDRotatingPieChart: UIControl {
         let angleDifference = delta - ang
         
         //rotate !
-        self.transform = CGAffineTransformRotate(self.transform, -angleDifference)
+        self.transform = self.transform.rotated(by: -angleDifference)
         
         //reset labels
         let savedTransform = slicesArray[0].labelObj?.transform
@@ -425,40 +495,40 @@ class MDRotatingPieChart: UIControl {
         
         for slice in slicesArray  {
             if(slice.labelObj != nil)  {
-                slice.labelObj?.transform = CGAffineTransformRotate(savedTransform!, angleDifference)
+                slice.labelObj?.transform = savedTransform!.rotated(by: angleDifference)
             }
         }
         
-        labelCenter.transform = CGAffineTransformRotate(savedTransformCenter, angleDifference)
+        labelCenter.transform = savedTransformCenter.rotated(by: angleDifference)
         
         return true;
     }
     
     //UIControl implementation
-    override func endTrackingWithTouch(touch: UITouch, withEvent event: UIEvent) {
+    override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
         //don't open/close slice if a drag event has been detected
-        if(hasBeenDraged) {
+        if(touch == nil || hasBeenDraged) {
             return
         }
         
-        let currentPoint = touch.locationInView(self)
+        let currentPoint = touch!.location(in: self)
 
         var cpt = 0
         for currentPath in slicesArray {
             
             //click on a slice
-            if currentPath.paths.bezierPath.containsPoint(currentPoint) {
-                openCloseSlice(cpt)
+            if currentPath.paths.bezierPath.contains(currentPoint) {
+                openCloseSlice(index: cpt)
                 return
             }
             
             //click on the current opened slice
-            if currentPath.paths.bezierPath.containsPoint(CGPointMake(currentPoint.x+currentTr.x, currentPoint.y+currentTr.y)) && cpt == currentSelected {
-                openCloseSlice(cpt)
+            if currentPath.paths.bezierPath.contains(CGPoint(x: currentPoint.x+currentTr.x, y: currentPoint.y+currentTr.y)) && cpt == currentSelected {
+                openCloseSlice(index: cpt)
                 return
             }
             
-            cpt++
+            cpt+=1
         }
     }
 
@@ -487,16 +557,16 @@ class MDRotatingPieChart: UIControl {
     */
     func createSlice(start:CGFloat, end:CGFloat, color:UIColor, label:String, value:CGFloat, percent:CGFloat) -> Slice {
         
-        var mask = CAShapeLayer()
+        let mask = CAShapeLayer()
         
         mask.frame = bounds
-        let path = computeDualPath(start, end: end)
-        mask.path = path.animationBezierPath.CGPath
+        let path = computeDualPath(start: start, end: end)
+        mask.path = path.animationBezierPath.cgPath
         mask.lineWidth = properties.bigRadius - properties.smallRadius
-        mask.strokeColor = color.CGColor
-        mask.fillColor = color.CGColor
+        mask.strokeColor = color.cgColor
+        mask.fillColor = color.cgColor
         
-        var slice = Slice(myPaths: path, myShapeLayer: mask, myAngle: end-start, myLabel:label, myValue:value, myPercent:percent)
+        let slice = Slice(myPaths: path, myShapeLayer: mask, myAngle: end-start, myLabel:label, myValue:value, myPercent:percent)
 
         return slice;
     }
@@ -511,20 +581,20 @@ class MDRotatingPieChart: UIControl {
     func formatFromDisplayValueType(slice:Slice, displayType:DisplayValueType) -> String {
     
         var toRet = ""
-        
+     
         switch(displayType) {
         case .Value :
-            toRet = properties.nf.stringFromNumber(slice.value)!
+            toRet = properties.nf.string(from: NSNumber( value: Float(slice.value)))!
             break
         case .Percent :
-            toRet = (properties.nf.stringFromNumber(slice.percent)?.stringByAppendingString("%"))!
+            toRet = "\(properties.nf.string(from:NSNumber( value: Float(slice.percent))) ?? "??") %"
             break
         case .Label :
             toRet = slice.label
             break
-        default :
-            toRet = slice.label
-            break
+//        default :
+//            toRet = slice.label
+//            break
         }
 
         return toRet;
@@ -541,13 +611,13 @@ class MDRotatingPieChart: UIControl {
     :returns: the UIBezierPath build
     */
     func computeAnimationPath(start:CGFloat, end:CGFloat) -> UIBezierPath {
-        var animationPath = UIBezierPath()
+        let animationPath = UIBezierPath()
         
-        animationPath.moveToPoint(getMiddlePoint(start))
+        animationPath.move(to: getMiddlePoint(angleSum: start))
         
-        animationPath.addArcWithCenter(pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
+        animationPath.addArc(withCenter: pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: start, endAngle: end, clockwise: false)
         
-        animationPath.addArcWithCenter(pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
+        animationPath.addArc(withCenter: pieChartCenter, radius: (properties.smallRadius + (properties.bigRadius-properties.smallRadius)/2), startAngle: end, endAngle: start, clockwise: true)
 
         return animationPath;
     }
@@ -560,11 +630,11 @@ class MDRotatingPieChart: UIControl {
     */
     func computeDualPath(start:CGFloat, end:CGFloat) -> DualPath {
         
-        let pathRef = computeAnimationPath(start, end: end)
+        let pathRef = computeAnimationPath(start: start, end: end)
+        let other = pathRef.cgPath.copy(strokingWithWidth: properties.bigRadius-properties.smallRadius, lineCap: CGLineCap.butt, lineJoin: CGLineJoin.miter, miterLimit: 1)
+//        let other = CGPathCreateCopyByStrokingPath(pathRef.CGPath, nil, properties.bigRadius-properties.smallRadius, CGLineCap.butt, CGLineJoin.Miter, 1)
         
-        let other = CGPathCreateCopyByStrokingPath(pathRef.CGPath, nil, properties.bigRadius-properties.smallRadius, kCGLineCapButt, kCGLineJoinMiter, 1)
-        
-        let ok = UIBezierPath(CGPath: other)
+        let ok = UIBezierPath(cgPath: other)
       
         return DualPath(myBezierPath: ok, myAnimationBezierPath: pathRef)
     }
@@ -580,80 +650,28 @@ class MDRotatingPieChart: UIControl {
     func frameFitInPath(frame:CGRect, path:UIBezierPath, inside:Bool) -> Bool {
         
         let topLeftPoint = frame.origin
-        let topRightPoint = CGPointMake(frame.origin.x + frame.width, frame.origin.y)
-        let bottomLeftPoint = CGPointMake(frame.origin.x, frame.origin.y + frame.height)
-        let bottomRightPoint = CGPointMake(frame.origin.x + frame.width, frame.origin.y + frame.height)
+        let topRightPoint = CGPoint(x: frame.origin.x + frame.width, y: frame.origin.y)
+        let bottomLeftPoint = CGPoint(x: frame.origin.x, y: frame.origin.y + frame.height)
+        let bottomRightPoint = CGPoint(x: frame.origin.x + frame.width, y: frame.origin.y + frame.height)
         
         if(inside) {
-            if(!path.containsPoint(topLeftPoint)
-                || !path.containsPoint(topRightPoint)
-                || !path.containsPoint(bottomLeftPoint)
-                || !path.containsPoint(bottomRightPoint)) {
+            if(!path.contains(topLeftPoint)
+                || !path.contains(topRightPoint)
+                || !path.contains(bottomLeftPoint)
+                || !path.contains(bottomRightPoint)) {
                     return false
             }
         }
         
         if(!inside) {
-            if(path.containsPoint(topLeftPoint)
-                || path.containsPoint(topRightPoint)
-                || path.containsPoint(bottomLeftPoint)
-                || path.containsPoint(bottomRightPoint)) {
+            if(path.contains(topLeftPoint)
+                || path.contains(topRightPoint)
+                || path.contains(bottomLeftPoint)
+                || path.contains(bottomRightPoint)) {
                     return false
             }
         }
         
         return true
     }
-
-
-
 }
-
-/**
-*  Stores both BezierPaths, one for the animation and the "real one"
-*/
-struct DualPath {
-    var bezierPath:UIBezierPath
-    var animationBezierPath:UIBezierPath
-    
-    init(myBezierPath:UIBezierPath, myAnimationBezierPath:UIBezierPath) {
-        self.bezierPath = myBezierPath
-        self.animationBezierPath = myAnimationBezierPath
-    }
-}
-
-/**
-*  Stores a slice
-*/
-struct Slice {
-    var paths:DualPath
-    var shapeLayer:CAShapeLayer
-    var angle:CGFloat
-    var label:String
-    var value:CGFloat
-    var labelObj:UILabel?
-    var percent:CGFloat
-    
-    init(myPaths:DualPath, myShapeLayer:CAShapeLayer, myAngle:CGFloat, myLabel:String, myValue:CGFloat, myPercent:CGFloat) {
-        self.paths = myPaths
-        self.shapeLayer = myShapeLayer
-        self.angle = myAngle
-        self.label = myLabel
-        self.value = myValue
-        self.percent = myPercent
-    }
-}
-
-/**
-Helper enum to format the labels
-
-- Percent: the percent value
-- Value:   the raw value
-- Label:   the description
-*/
-enum DisplayValueType {
-    case Percent
-    case Value
-    case Label
-}
-
